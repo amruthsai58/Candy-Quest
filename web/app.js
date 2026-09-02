@@ -16,6 +16,8 @@ function saveTopics() {
   } catch (e) {}
 }
 
+const ADMIN_PASSWORD = "BACKBENCHERS@SNPSU";
+
 let state = {
   user: {
     username: localStorage.getItem("candy_quest_username") || "",
@@ -24,7 +26,7 @@ let state = {
     streak: 1,
     level: 1
   },
-  isAdmin: true, // Full Admin Privileges Granted
+  isAdminAuthenticated: sessionStorage.getItem("candy_quest_admin_auth") === "true",
   activeTrack: "FOUNDATIONS",
   activeTopicId: "topic_foundations_1",
   completedTopics: {},
@@ -227,7 +229,7 @@ function showView(viewId) {
   if (viewId === "trackMapView") renderTrackMap();
   if (viewId === "dashboardView") renderDashboard();
   if (viewId === "searchView") renderSearch();
-  if (viewId === "adminView") renderAdminTopicList();
+  if (viewId === "adminView") checkAdminViewDisplay();
   if (viewId === "wheelView") initSpinWheel();
 }
 
@@ -746,6 +748,62 @@ Test Case 3: [3, 3] Target: 6          ➜ PASS [0, 1] (0.8ms)
 All test assertions executed with 100% precision!
 Time Complexity: O(N) | Space Complexity: O(N)
 🏭 Production SLA: Validated for High-Frequency Matching Engines!`;
+}
+
+// ==========================================================================
+// 7. Admin Control Center & Topic Management (Password Authenticated)
+// ==========================================================================
+function checkAdminViewDisplay() {
+  const authGate = document.getElementById("adminAuthGate");
+  const consoleContent = document.getElementById("adminConsoleContent");
+  const errorEl = document.getElementById("adminAuthError");
+  if (errorEl) errorEl.innerText = "";
+
+  if (state.isAdminAuthenticated) {
+    if (authGate) authGate.style.display = "none";
+    if (consoleContent) consoleContent.style.display = "block";
+    renderAdminTopicList();
+  } else {
+    if (authGate) authGate.style.display = "block";
+    if (consoleContent) consoleContent.style.display = "none";
+    const passInput = document.getElementById("adminPasswordInput");
+    if (passInput) {
+      passInput.value = "";
+      passInput.focus();
+    }
+  }
+}
+
+function handleAdminPasswordSubmit(e) {
+  e.preventDefault();
+  const passInput = document.getElementById("adminPasswordInput");
+  const errorEl = document.getElementById("adminAuthError");
+  const entered = (passInput.value || "").trim();
+
+  if (entered === ADMIN_PASSWORD) {
+    state.isAdminAuthenticated = true;
+    sessionStorage.setItem("candy_quest_admin_auth", "true");
+    
+    if (errorEl) errorEl.innerText = "";
+    passInput.value = "";
+
+    checkAdminViewDisplay();
+    spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 70);
+    setMascot("🛡️ Super-Admin Authenticated! Full Topic Management Unlocked!");
+  } else {
+    if (errorEl) {
+      errorEl.innerText = "❌ Incorrect Admin Password! Access Denied.";
+      passInput.focus();
+      passInput.select();
+    }
+  }
+}
+
+function lockAdminConsole() {
+  state.isAdminAuthenticated = false;
+  sessionStorage.removeItem("candy_quest_admin_auth");
+  checkAdminViewDisplay();
+  setMascot("🔒 Admin Console locked.");
 }
 
 // ==========================================================================
