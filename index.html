@@ -14,8 +14,38 @@
   <!-- Particle Overlay Canvas -->
   <canvas id="particlesCanvas"></canvas>
 
+  <!-- Login Screen Overlay -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <img src="assets/logo.png" alt="Candy Quest Logo" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--candy-gold); box-shadow: 0 0 25px rgba(255, 209, 102, 0.6); margin-bottom: 12px;">
+      <h2 style="font-size: 24px; font-weight: 900; color: #FFF; margin-bottom: 4px;">Welcome, Explorer!</h2>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 18px;">Enter your name to unlock your personalized DSA quest:</p>
+
+      <form onsubmit="handleLoginSubmit(event)">
+        <div class="form-group" style="text-align: left;">
+          <label style="color: var(--candy-gold);">Your Name</label>
+          <input type="text" id="loginNameInput" class="form-input" placeholder="e.g. Amruth Sai" required autofocus style="font-size: 15px; padding: 12px 16px; text-align: center; font-weight: 800;">
+        </div>
+
+        <div style="margin: 14px 0 6px 0; text-align: left;">
+          <label style="font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Select Flavor Avatar</label>
+          <div class="avatar-selector">
+            <div class="avatar-chip selected" data-avatar="🍓" onclick="selectAvatar('🍓', this)">🍓</div>
+            <div class="avatar-chip" data-avatar="🍊" onclick="selectAvatar('🍊', this)">🍊</div>
+            <div class="avatar-chip" data-avatar="🍇" onclick="selectAvatar('🍇', this)">🍇</div>
+            <div class="avatar-chip" data-avatar="🍉" onclick="selectAvatar('🍉', this)">🍉</div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-candy" style="width: 100%; justify-content: center; font-size: 15px; padding: 12px 20px; margin-top: 10px;">
+          🚀 Enter Candy Quest
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Animated Candy Pack Burst Welcome Overlay -->
-  <div id="packOverlay" class="pack-overlay">
+  <div id="packOverlay" class="pack-overlay" style="display: none;">
     <div class="pack-foil-wrapper" onclick="burstOpenPack()">
       <img src="assets/logo.png" alt="Candy Quest Logo" style="width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--candy-gold); box-shadow: 0 0 30px rgba(255, 209, 102, 0.8); margin-bottom: 14px;">
       <div style="font-size: 13px; font-weight: 900; color: var(--candy-gold); letter-spacing: 2px;">CANDYMAN EXCLUSIVE</div>
@@ -41,6 +71,12 @@
     </div>
 
     <div class="stats-bar">
+      <!-- Personalized Explorer Profile Button -->
+      <button id="userProfileBtn" class="user-profile-btn" onclick="openLoginModal()" title="Click to edit name / avatar">
+        <span id="userAvatarDisplay">🍓</span>
+        <span id="usernameDisplay">Amruth Sai</span>
+      </button>
+
       <div id="userLevel" class="badge-pill badge-level">Lvl 1</div>
       <div class="xp-progress-box">
         <div class="xp-progress-bar">

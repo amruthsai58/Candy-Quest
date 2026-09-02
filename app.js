@@ -18,7 +18,8 @@ function saveTopics() {
 
 let state = {
   user: {
-    username: "Candy Explorer",
+    username: localStorage.getItem("candy_quest_username") || "",
+    avatar: localStorage.getItem("candy_quest_avatar") || "🍓",
     xp: 0,
     streak: 1,
     level: 1
@@ -116,6 +117,15 @@ function updateHeader() {
   const level = Math.floor(xp / 100) + 1;
   state.user.level = level;
 
+  const displayName = state.user.username || "Amruth Sai";
+  const displayAvatar = state.user.avatar || "🍓";
+
+  const nameEl = document.getElementById("usernameDisplay");
+  if (nameEl) nameEl.innerText = displayName;
+
+  const avatarEl = document.getElementById("userAvatarDisplay");
+  if (avatarEl) avatarEl.innerText = displayAvatar;
+
   document.getElementById("userLevel").innerText = `Lvl ${level}`;
   document.getElementById("xpText").innerText = `${xp} XP (${xp % 100}/100)`;
   document.getElementById("xpFill").style.width = `${xp % 100}%`;
@@ -123,15 +133,58 @@ function updateHeader() {
   saveState();
 }
 
+function handleLoginSubmit(e) {
+  e.preventDefault();
+  const nameInput = document.getElementById("loginNameInput");
+  const enteredName = (nameInput.value || "").trim() || "Explorer";
+
+  state.user.username = enteredName;
+  localStorage.setItem("candy_quest_username", enteredName);
+  localStorage.setItem("candy_quest_avatar", state.user.avatar || "🍓");
+
+  const loginOverlay = document.getElementById("loginOverlay");
+  if (loginOverlay) loginOverlay.style.display = "none";
+
+  const packOverlay = document.getElementById("packOverlay");
+  if (packOverlay && packOverlay.dataset.opened !== "true") {
+    packOverlay.style.display = "flex";
+  }
+
+  updateHeader();
+  spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 50);
+  setMascot(`G'day ${enteredName}! Welcome to Candy Quest! Pick a flavor world to start!`);
+}
+
+function openLoginModal() {
+  const loginOverlay = document.getElementById("loginOverlay");
+  if (loginOverlay) {
+    loginOverlay.style.display = "flex";
+    const nameInput = document.getElementById("loginNameInput");
+    if (nameInput) {
+      nameInput.value = state.user.username || "";
+      nameInput.focus();
+    }
+  }
+}
+
+function selectAvatar(avatarEmoji, el) {
+  state.user.avatar = avatarEmoji;
+  document.querySelectorAll(".avatar-chip").forEach(c => c.classList.remove("selected"));
+  if (el) el.classList.add("selected");
+}
+
 function burstOpenPack() {
   const overlay = document.getElementById("packOverlay");
-  playFanfare();
-  spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 70);
-  overlay.style.opacity = "0";
-  setTimeout(() => {
-    overlay.style.display = "none";
-  }, 500);
-  setMascot("🎉 YUM! Candy pack burst open! Welcome to Candy Quest — Solve • Learn • Conquer!");
+  if (overlay) {
+    overlay.dataset.opened = "true";
+    spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 70);
+    overlay.style.opacity = "0";
+    setTimeout(() => {
+      overlay.style.display = "none";
+    }, 500);
+  }
+  const userName = state.user.username || "Explorer";
+  setMascot(`🎉 YUM! Candy pack burst open! Let's conquer algorithms, ${userName}!`);
 }
 
 function setMascot(text) {
@@ -670,6 +723,18 @@ Time Complexity: O(N) | Space Complexity: O(N)
 
 // Initialize
 window.onload = () => {
+  const savedName = localStorage.getItem("candy_quest_username");
+  const loginOverlay = document.getElementById("loginOverlay");
+
+  if (!savedName) {
+    if (loginOverlay) loginOverlay.style.display = "flex";
+  } else {
+    if (loginOverlay) loginOverlay.style.display = "none";
+    state.user.username = savedName;
+    state.user.avatar = localStorage.getItem("candy_quest_avatar") || "🍓";
+    setMascot(`Welcome back, ${savedName}! Ready to continue your DSA Quest?`);
+  }
+
   updateHeader();
   renderHomeJars();
 };
