@@ -49,10 +49,172 @@ function saveState() {
   } catch (e) {}
 }
 
-// Sound section removed as requested
-function playSweetPop() {}
-function playThud() {}
-function playFanfare() {}
+// ==========================================================================
+// Web Audio API Synthesizer (Quiz Sound Effects Engine)
+// ==========================================================================
+let audioCtx = null;
+let isSoundEnabled = localStorage.getItem("candy_quest_sound") !== "false";
+
+function getAudioContext() {
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) audioCtx = new AudioContextClass();
+  }
+  if (audioCtx && audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playCorrectSound() {
+  if (!isSoundEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 (Major Triad Chime)
+    const now = ctx.currentTime;
+
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+      gain.gain.setValueAtTime(0, now + idx * 0.08);
+      gain.gain.linearRampToValueAtTime(0.25, now + idx * 0.08 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now + idx * 0.08);
+      osc.stop(now + idx * 0.08 + 0.35);
+    });
+  } catch (e) {}
+}
+
+function playWrongSound() {
+  if (!isSoundEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(260, now);
+    osc.frequency.exponentialRampToValueAtTime(90, now + 0.35);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.35);
+  } catch (e) {}
+}
+
+function playSweetPop() {
+  if (!isSoundEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.12);
+  } catch (e) {}
+}
+
+function playFanfare() {
+  if (!isSoundEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const melody = [
+      { f: 523.25, t: 0, d: 0.12 },
+      { f: 659.25, t: 0.12, d: 0.12 },
+      { f: 783.99, t: 0.24, d: 0.12 },
+      { f: 1046.50, t: 0.36, d: 0.35 }
+    ];
+
+    melody.forEach(n => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(n.f, now + n.t);
+
+      gain.gain.setValueAtTime(0.25, now + n.t);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now + n.t);
+      osc.stop(now + n.t + n.d);
+    });
+  } catch (e) {}
+}
+
+function toggleSound() {
+  isSoundEnabled = !isSoundEnabled;
+  localStorage.setItem("candy_quest_sound", isSoundEnabled);
+  const btn = document.getElementById("soundToggleBtn");
+  if (btn) btn.innerText = isSoundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+  if (isSoundEnabled) playSweetPop();
+}
+
+// ==========================================================================
+// Device Mode (Desktop vs Mobile Responsive Engine)
+// ==========================================================================
+let currentDeviceMode = localStorage.getItem("candy_quest_device_mode") || (window.innerWidth < 768 ? "mobile" : "desktop");
+let selectedLoginDevice = currentDeviceMode;
+
+function selectDeviceType(type) {
+  selectedLoginDevice = type;
+  document.getElementById("deviceChipDesktop")?.classList.toggle("selected", type === "desktop");
+  document.getElementById("deviceChipMobile")?.classList.toggle("selected", type === "mobile");
+  playSweetPop();
+}
+
+function setDeviceMode(mode) {
+  currentDeviceMode = mode;
+  localStorage.setItem("candy_quest_device_mode", mode);
+  document.body.classList.toggle("mobile-mode", mode === "mobile");
+  
+  const btn = document.getElementById("deviceToggleBtn");
+  if (btn) {
+    btn.innerText = mode === "mobile" ? "📱 Mobile" : "💻 Desktop";
+  }
+}
+
+function toggleDeviceMode() {
+  const next = currentDeviceMode === "mobile" ? "desktop" : "mobile";
+  setDeviceMode(next);
+  playSweetPop();
+}
 
 // Particle System matching Logo Colors
 const canvas = document.getElementById("particlesCanvas");
@@ -144,6 +306,9 @@ function handleLoginSubmit(e) {
   localStorage.setItem("candy_quest_username", enteredName);
   localStorage.setItem("candy_quest_avatar", state.user.avatar || "🍓");
 
+  // Apply chosen device mode (Mobile or Desktop)
+  setDeviceMode(selectedLoginDevice);
+
   const loginOverlay = document.getElementById("loginOverlay");
   if (loginOverlay) loginOverlay.style.display = "none";
 
@@ -153,6 +318,7 @@ function handleLoginSubmit(e) {
   }
 
   updateHeader();
+  playFanfare();
   spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 50);
   setMascot(`G'day ${enteredName}! Welcome to Candy Quest! Pick a flavor world to start!`);
 }
@@ -472,13 +638,13 @@ function selectQuizOption(topic, selectedIdx, btnElem) {
     btnElem.classList.add("correct");
     quizScore += q.xp;
     state.user.xp += q.xp;
-    playSweetPop();
+    playCorrectSound();
     spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 40);
     document.getElementById("quizFeedback").innerHTML = `<span style="color: var(--candy-green); font-weight: 900;">🎉 Sweet! ${q.explanation} (+${q.xp} XP)</span>`;
     setMascot(`Brilliant! Look at those candy drops! +${q.xp} XP!`);
   } else {
     btnElem.classList.add("incorrect");
-    playThud();
+    playWrongSound();
     document.getElementById("quizFeedback").innerHTML = `<span style="color: var(--candy-pink); font-weight: 900;">🍭 Oops! ${q.explanation}</span>`;
     setMascot("No worries! Take another bite of the logic next time!");
   }
@@ -993,6 +1159,13 @@ function claimActivityBonus() {
 window.onload = () => {
   const savedName = localStorage.getItem("candy_quest_username");
   const loginOverlay = document.getElementById("loginOverlay");
+
+  // Apply saved device mode
+  setDeviceMode(currentDeviceMode);
+
+  // Update sound button label
+  const soundBtn = document.getElementById("soundToggleBtn");
+  if (soundBtn) soundBtn.innerText = isSoundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
 
   if (!savedName) {
     if (loginOverlay) loginOverlay.style.display = "flex";

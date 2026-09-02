@@ -37,6 +37,20 @@
           </div>
         </div>
 
+        <div style="margin: 14px 0 6px 0; text-align: left;">
+          <label style="font-size: 11px; font-weight: 800; color: var(--candy-gold); text-transform: uppercase;">Are you using Mobile or Desktop?</label>
+          <div class="device-select-row">
+            <div class="device-chip selected" id="deviceChipDesktop" onclick="selectDeviceType('desktop')">
+              <span class="device-icon">💻</span>
+              <span class="device-label">Desktop / Laptop</span>
+            </div>
+            <div class="device-chip" id="deviceChipMobile" onclick="selectDeviceType('mobile')">
+              <span class="device-icon">📱</span>
+              <span class="device-label">Mobile / Phone</span>
+            </div>
+          </div>
+        </div>
+
         <div style="display: flex; gap: 10px; margin-top: 10px;">
           <button type="submit" class="btn-candy" style="flex: 1; justify-content: center; font-size: 14px; padding: 12px 16px;">
             🚀 Enter Candy Quest
@@ -91,6 +105,8 @@
       </div>
       <div id="streakBadge" class="badge-pill badge-streak">🔥 1d</div>
       <button class="btn-danger" style="padding: 4px 10px; font-size: 11px; border-radius: 12px;" onclick="handleLogout()" title="Log out explorer">🚪 Logout</button>
+      <button id="deviceToggleBtn" class="nav-btn" style="padding: 4px 10px; font-size: 11px; border-radius: 12px;" onclick="toggleDeviceMode()" title="Toggle Desktop/Mobile mode">💻 Desktop</button>
+      <button id="soundToggleBtn" class="nav-btn" style="padding: 4px 10px; font-size: 11px; border-radius: 12px;" onclick="toggleSound()" title="Toggle quiz sound effects">🔊 Sound: ON</button>
     </div>
 
     <nav class="nav-cluster">
