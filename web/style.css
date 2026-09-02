@@ -885,4 +885,140 @@ body {
   transform: scale(1.05);
 }
 
+/* ==========================================================================
+   4-Color Fortune Spin Wheel & Daily Quest Styles
+   ========================================================================== */
+.wheel-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 32px;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.wheel-stage {
+  background: var(--bg-card);
+  border: 2px solid rgba(157, 78, 221, 0.4);
+  border-radius: 28px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(131, 56, 236, 0.2);
+  position: relative;
+}
+
+.wheel-outer-ring {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  padding: 10px;
+  background: linear-gradient(135deg, var(--candy-gold), #FF9E00, #8338EC);
+  box-shadow: 0 0 35px rgba(255, 209, 102, 0.5), 0 0 15px rgba(131, 56, 236, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#wheelCanvas {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+  transition: transform 4s cubic-bezier(0.15, 0.9, 0.25, 1);
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  border-top: 28px solid var(--candy-gold);
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+  z-index: 10;
+}
+
+.wheel-center-peg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFD166, #FF9E00);
+  border: 4px solid #0D071E;
+  box-shadow: 0 0 20px rgba(255, 209, 102, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 13px;
+  color: #0D071E;
+  cursor: pointer;
+  z-index: 8;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.wheel-center-peg:hover {
+  transform: translate(-50%, -50%) scale(1.12);
+}
+
+.wheel-center-peg:active {
+  transform: translate(-50%, -50%) scale(0.92);
+}
+
+.activity-display-card {
+  background: var(--bg-card);
+  border: 2.5px solid var(--candy-gold);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.activity-badge-pill {
+  padding: 6px 16px;
+  border-radius: 16px;
+  font-weight: 900;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  color: white;
+}
+
+.activity-task-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: #FFFFFF;
+  margin-bottom: 8px;
+}
+
+.activity-task-desc {
+  font-size: 14px;
+  color: var(--text-sub);
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.activity-reward-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1.5px solid rgba(255, 209, 102, 0.4);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+
 

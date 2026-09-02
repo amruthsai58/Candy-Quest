@@ -208,6 +208,7 @@ function showView(viewId) {
   if (viewId === "dashboardView") renderDashboard();
   if (viewId === "searchView") renderSearch();
   if (viewId === "adminView") renderAdminTopicList();
+  if (viewId === "wheelView") initSpinWheel();
 }
 
 // 1. Home View: 4 Jars
@@ -721,6 +722,189 @@ Time Complexity: O(N) | Space Complexity: O(N)
 🏭 Production SLA: Validated for High-Frequency Matching Engines!`;
 }
 
+// ==========================================================================
+// 8. 4-Color Fortune Spin Wheel & Daily Flavor Activities
+// ==========================================================================
+const DAILY_ACTIVITIES = {
+  FOUNDATIONS: {
+    track: "FOUNDATIONS",
+    title: "🍓 Speed Chew Complexity Sprint",
+    desc: "Solve 2 Array or String Big-O complexity problems. Identify asymptotic bounds to optimize memory consumption under 2ms!",
+    realWorld: "Audio Streaming Buffers & Image Pixel Processing",
+    rewardText: "+50 XP & 🍓 Sweet Foundations Charm",
+    rewardIcon: "🍓",
+    xp: 50
+  },
+  LINEAR: {
+    track: "LINEAR",
+    title: "🍊 Pez Dispenser & Ribbon Splicer",
+    desc: "Practice Stack LIFO trace and reverse a Linked List ribbon chain to master O(1) pointer updates!",
+    realWorld: "Redis In-Memory LRU Cache Eviction & Spotify Playlist Traversal",
+    rewardText: "+60 XP & 🍊 Tangy Linear Token",
+    rewardIcon: "🍊",
+    xp: 60
+  },
+  TREES_GRAPHS: {
+    track: "TREES_GRAPHS",
+    title: "🍇 Lollipop Tree & GPS Pathfinder",
+    desc: "Climb the Binary Search Tree! Trace BFS Level-Order traversal and Dijkstra shortest path routing!",
+    realWorld: "Google Search Autocomplete (Tries) & Google Maps Route Finding",
+    rewardText: "+75 XP & 🍇 Royal Grape Gem",
+    rewardIcon: "🍇",
+    xp: 75
+  },
+  ADVANCED: {
+    track: "ADVANCED",
+    title: "🍉 Chef's Recipe Dynamic Cache",
+    desc: "Conquer a Dynamic Programming subproblem! Cache previous recipe states in a memoization grid to kill exponential redundancy!",
+    realWorld: "Distributed Memcached & Flight Ticket Matrix Pricing",
+    rewardText: "+100 XP & 🍉 Emerald DP Trophy",
+    rewardIcon: "🍉",
+    xp: 100
+  }
+};
+
+let currentWheelRotation = 0;
+let isWheelSpinning = false;
+let currentAssignedTrack = "FOUNDATIONS";
+
+const WHEEL_SECTORS = [
+  { track: "FOUNDATIONS", label: "Strawberry", emoji: "🍓", color: "#FF007F" },
+  { track: "LINEAR", label: "Mango", emoji: "🍊", color: "#FF9E00" },
+  { track: "TREES_GRAPHS", label: "Grape", emoji: "🍇", color: "#8338EC" },
+  { track: "ADVANCED", label: "Lime", emoji: "🍉", color: "#38B000" }
+];
+
+function initSpinWheel() {
+  drawSpinWheel();
+  updateActivityDisplay(currentAssignedTrack);
+}
+
+function drawSpinWheel() {
+  const wCanvas = document.getElementById("wheelCanvas");
+  if (!wCanvas) return;
+  const wCtx = wCanvas.getContext("2d");
+  const width = wCanvas.width;
+  const height = wCanvas.height;
+  const cx = width / 2;
+  const cy = height / 2;
+  const radius = width / 2;
+
+  wCtx.clearRect(0, 0, width, height);
+
+  const numSectors = WHEEL_SECTORS.length;
+  const arcSize = (2 * Math.PI) / numSectors;
+
+  WHEEL_SECTORS.forEach((sec, i) => {
+    const angle = i * arcSize;
+
+    // Draw sector slice
+    wCtx.beginPath();
+    wCtx.moveTo(cx, cy);
+    wCtx.arc(cx, cy, radius, angle, angle + arcSize);
+    wCtx.closePath();
+    wCtx.fillStyle = sec.color;
+    wCtx.fill();
+
+    // Divider line
+    wCtx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    wCtx.lineWidth = 3;
+    wCtx.stroke();
+
+    // Draw Emoji & Text
+    wCtx.save();
+    wCtx.translate(cx, cy);
+    wCtx.rotate(angle + arcSize / 2);
+    wCtx.textAlign = "right";
+    wCtx.fillStyle = "#FFFFFF";
+    wCtx.font = "bold 18px 'Outfit', sans-serif";
+    wCtx.shadowColor = "rgba(0,0,0,0.5)";
+    wCtx.shadowBlur = 6;
+    wCtx.fillText(`${sec.emoji} ${sec.label}`, radius - 24, 6);
+    wCtx.restore();
+  });
+}
+
+function spinFortuneWheel() {
+  if (isWheelSpinning) return;
+  isWheelSpinning = true;
+
+  const wCanvas = document.getElementById("wheelCanvas");
+  const btn = document.getElementById("btnSpinWheelAction");
+  if (btn) btn.disabled = true;
+
+  // Random winning sector index [0..3]
+  const winningIdx = Math.floor(Math.random() * WHEEL_SECTORS.length);
+  const winningSector = WHEEL_SECTORS[winningIdx];
+
+  // Each sector is 90 degrees (Math.PI/2)
+  // Pointer is at the TOP (270 deg / -90 deg).
+  // Calculate target rotation degrees
+  const sectorAngle = 360 / WHEEL_SECTORS.length; // 90 deg
+  const extraRounds = 5 * 360; // 5 full revolutions
+  // Sector center angle relative to top pointer
+  const stopAngle = 270 - (winningIdx * sectorAngle + sectorAngle / 2);
+  currentWheelRotation += extraRounds + (stopAngle - (currentWheelRotation % 360) + 360) % 360;
+
+  if (wCanvas) {
+    wCanvas.style.transform = `rotate(${currentWheelRotation}deg)`;
+  }
+
+  // After 4s animation completes:
+  setTimeout(() => {
+    isWheelSpinning = false;
+    if (btn) btn.disabled = false;
+    currentAssignedTrack = winningSector.track;
+
+    spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 60);
+    updateActivityDisplay(winningSector.track);
+
+    const userName = state.user.username || "Explorer";
+    setMascot(`🎡 The wheel landed on ${winningSector.emoji} ${winningSector.label}! Here is your daily DSA quest, ${userName}!`);
+  }, 4000);
+}
+
+function updateActivityDisplay(trackKey) {
+  const act = DAILY_ACTIVITIES[trackKey] || DAILY_ACTIVITIES.FOUNDATIONS;
+  const track = TRACKS[trackKey] || TRACKS.FOUNDATIONS;
+
+  const badge = document.getElementById("activityTrackBadge");
+  if (badge) {
+    badge.innerText = `${track.emoji} ${track.name.toUpperCase()} QUEST`;
+    badge.style.background = track.gradient;
+  }
+
+  const title = document.getElementById("activityTitle");
+  if (title) title.innerText = act.title;
+
+  const desc = document.getElementById("activityDesc");
+  if (desc) desc.innerText = act.desc;
+
+  const rw = document.getElementById("activityRealWorld");
+  if (rw) rw.innerText = act.realWorld;
+
+  const rew = document.getElementById("activityRewardText");
+  if (rew) rew.innerText = act.rewardText;
+
+  const rewIcon = document.getElementById("activityRewardIcon");
+  if (rewIcon) rewIcon.innerText = act.rewardIcon;
+}
+
+function startAssignedQuest() {
+  state.activeTrack = currentAssignedTrack;
+  showView("trackMapView");
+}
+
+function claimActivityBonus() {
+  const act = DAILY_ACTIVITIES[currentAssignedTrack] || DAILY_ACTIVITIES.FOUNDATIONS;
+  state.user.xp += act.xp;
+  updateHeader();
+  saveState();
+
+  spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 70);
+  alert(`🎉 Sweet! You earned ${act.rewardText} for conquering today's ${TRACKS[currentAssignedTrack].name} quest!`);
+}
+
 // Initialize
 window.onload = () => {
   const savedName = localStorage.getItem("candy_quest_username");
@@ -737,4 +921,5 @@ window.onload = () => {
 
   updateHeader();
   renderHomeJars();
+  initSpinWheel();
 };

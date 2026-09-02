@@ -89,12 +89,13 @@
 
     <nav class="nav-cluster">
       <button class="nav-btn active" data-view="homeView" onclick="showView('homeView')">🏠 Worlds</button>
+      <button class="nav-btn" data-view="wheelView" style="border-color: var(--candy-gold);" onclick="showView('wheelView')">🎡 Daily Spin</button>
       <button class="nav-btn" data-view="packetView" onclick="showView('packetView')">🍫 Packet Lab</button>
       <button class="nav-btn" data-view="trackMapView" onclick="showView('trackMapView')">🗺️ Track Map</button>
       <button class="nav-btn" data-view="dashboardView" onclick="showView('dashboardView')">📊 Dashboard</button>
       <button class="nav-btn" data-view="playgroundView" onclick="showView('playgroundView')">💻 Playground</button>
       <button class="nav-btn" data-view="searchView" onclick="showView('searchView')">🔍 150 Topics</button>
-      <button class="nav-btn" data-view="adminView" style="border-color: var(--candy-gold);" onclick="showView('adminView')">🛡️ Admin</button>
+      <button class="nav-btn" data-view="adminView" style="border-color: var(--candy-purple);" onclick="showView('adminView')">🛡️ Admin</button>
     </nav>
   </header>
 
@@ -559,6 +560,77 @@ Click 'Run Code & Test Cases' to compile and execute assertions...</pre>
           </div>
 
           <div id="adminTopicListScroll" class="admin-topic-list-scroll"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 10. 4-Color Fortune Spin Wheel & Daily Quest View -->
+    <div id="wheelView" class="view-panel" style="display: none;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+        <div>
+          <h2 style="font-size: 24px; font-weight: 900; color: var(--candy-gold);">🎡 4-Color Fortune Spin Wheel & Daily Flavor Quests</h2>
+          <p style="color: var(--text-sub); font-size: 14px;">Spin the wheel across the 4 confectionery colors to draw your personalized daily DSA activity!</p>
+        </div>
+        <button class="nav-btn" onclick="showView('homeView')">⬅ Back to Worlds</button>
+      </div>
+
+      <div class="wheel-layout">
+        
+        <!-- Left: Animated 4-Color Spin Wheel -->
+        <div class="wheel-stage">
+          <div class="wheel-outer-ring">
+            <div class="wheel-pointer"></div>
+            <canvas id="wheelCanvas" width="300" height="300"></canvas>
+            <div class="wheel-center-peg" onclick="spinFortuneWheel()">
+              SPIN!
+            </div>
+          </div>
+
+          <button id="btnSpinWheelAction" class="btn-candy" style="margin-top: 24px; font-size: 15px; padding: 12px 32px;" onclick="spinFortuneWheel()">
+            🎲 Spin The Flavor Wheel
+          </button>
+          <div style="font-size: 11px; color: var(--text-dim); margin-top: 10px; font-weight: bold;">
+            🍓 Strawberry • 🍊 Mango • 🍇 Grape • 🍉 Lime
+          </div>
+        </div>
+
+        <!-- Right: Dynamic Daily Quest Activity Card -->
+        <div>
+          <div id="activityCard" class="activity-display-card">
+            <div id="activityTrackBadge" class="activity-badge-pill" style="background: linear-gradient(135deg, var(--candy-pink), #D0006F);">
+              🍓 STRAWBERRY FOUNDATIONS QUEST
+            </div>
+            
+            <h3 id="activityTitle" class="activity-task-title">Speed Chew Complexity Sprint</h3>
+            <p id="activityDesc" class="activity-task-desc">
+              Solve 2 Array or String Big-O complexity problems. Identify asymptotic bounds to optimize memory consumption under 2ms!
+            </p>
+
+            <div style="background: rgba(255,255,255,0.05); border-left: 3px solid var(--candy-gold); padding: 10px 14px; border-radius: 8px; margin-bottom: 16px;">
+              <strong style="color: var(--candy-gold); font-size: 12px;">🏭 Production Challenge:</strong>
+              <div id="activityRealWorld" style="font-size: 12px; color: #FFF; margin-top: 2px;">
+                Image Pixel Streaming & Audio Ring Buffer Memory Limits
+              </div>
+            </div>
+
+            <div class="activity-reward-box">
+              <div>
+                <div style="font-size: 11px; color: var(--text-dim); font-weight: 800; text-transform: uppercase;">Activity Reward</div>
+                <div id="activityRewardText" style="font-size: 16px; font-weight: 900; color: var(--candy-gold);">+50 XP & 🍓 Sweet Charm</div>
+              </div>
+              <span style="font-size: 30px;" id="activityRewardIcon">🎁</span>
+            </div>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <button id="btnStartQuest" class="btn-candy" onclick="startAssignedQuest()">
+                🚀 Accept & Jump to Track
+              </button>
+              <button id="btnClaimActivity" class="nav-btn" style="border-color: var(--candy-green); color: var(--candy-green);" onclick="claimActivityBonus()">
+                ✅ Complete Activity (+XP)
+              </button>
+            </div>
+          </div>
         </div>
 
       </div>
