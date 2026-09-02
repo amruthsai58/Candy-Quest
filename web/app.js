@@ -29,34 +29,52 @@ function saveTopics() {
 
 const ADMIN_PASSWORD = "BACKBENCHERS@SNPSU";
 
-let state = {
-  user: {
-    username: localStorage.getItem("candy_quest_username") || "",
-    avatar: localStorage.getItem("candy_quest_avatar") || "🍓",
-    xp: 0,
-    streak: 1,
-    level: 1
-  },
-  isAdminAuthenticated: sessionStorage.getItem("candy_quest_admin_auth") === "true",
-  activeTrack: "FOUNDATIONS",
-  activeTopicId: "topic_foundations_1",
-  completedTopics: {},
-  bookmarkedTopics: {},
-  unlockedBadges: {},
-  claimedToys: {}
-};
+function getUserStorageKey(username) {
+  if (!username) return "candy_quest_user_default";
+  return "candy_quest_user_" + encodeURIComponent(username.trim().toLowerCase());
+}
 
-// Load saved state
-try {
-  const saved = localStorage.getItem("candy_quest_state");
-  if (saved) {
-    state = Object.assign(state, JSON.parse(saved));
-  }
-} catch (e) {}
+function createDefaultUserState(username, avatar = "🍓") {
+  return {
+    user: {
+      username: username || "",
+      avatar: avatar || "🍓",
+      xp: 0,
+      streak: 1,
+      level: 1
+    },
+    isAdminAuthenticated: sessionStorage.getItem("candy_quest_admin_auth") === "true",
+    activeTrack: "FOUNDATIONS",
+    activeTopicId: "topic_foundations_1",
+    completedTopics: {},
+    bookmarkedTopics: {},
+    unlockedBadges: {},
+    claimedToys: {}
+  };
+}
+
+function loadUserProfile(username) {
+  if (!username) return createDefaultUserState("");
+  try {
+    const saved = localStorage.getItem(getUserStorageKey(username));
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return Object.assign(createDefaultUserState(username), parsed);
+    }
+  } catch (e) {}
+  return createDefaultUserState(username);
+}
+
+const initialUsername = localStorage.getItem("candy_quest_username") || "";
+let state = loadUserProfile(initialUsername);
 
 function saveState() {
   try {
-    localStorage.setItem("candy_quest_state", JSON.stringify(state));
+    if (state.user && state.user.username) {
+      localStorage.setItem(getUserStorageKey(state.user.username), JSON.stringify(state));
+      localStorage.setItem("candy_quest_username", state.user.username);
+      localStorage.setItem("candy_quest_avatar", state.user.avatar || "🍓");
+    }
   } catch (e) {}
 }
 
@@ -312,10 +330,9 @@ function handleLoginSubmit(e) {
   e.preventDefault();
   const nameInput = document.getElementById("loginNameInput");
   const enteredName = (nameInput.value || "").trim() || "Explorer";
+  const previousName = (state.user && state.user.username ? state.user.username : "").trim();
 
-  state.user.username = enteredName;
-  localStorage.setItem("candy_quest_username", enteredName);
-  localStorage.setItem("candy_quest_avatar", state.user.avatar || "🍓");
+  const isSameName = previousName && (enteredName.toLowerCase() === previousName.toLowerCase());
 
   // Apply chosen device mode (Mobile or Desktop)
   setDeviceMode(selectedLoginDevice);
@@ -323,15 +340,51 @@ function handleLoginSubmit(e) {
   const loginOverlay = document.getElementById("loginOverlay");
   if (loginOverlay) loginOverlay.style.display = "none";
 
-  const packOverlay = document.getElementById("packOverlay");
-  if (packOverlay && packOverlay.dataset.opened !== "true") {
-    packOverlay.style.display = "flex";
-  }
+  if (isSameName) {
+    // =========================================================================
+    // SAME NAME: DO NOT REFRESH INTERFACE OR ERASE PROGRESS
+    // =========================================================================
+    if (selectedAvatar) {
+      state.user.avatar = selectedAvatar;
+    }
+    saveState();
+    updateHeader();
+    playSweetPop();
+    setMascot(`Welcome back, ${state.user.username}! Your progress and badges are preserved.`);
+  } else {
+    // =========================================================================
+    // DIFFERENT NAME: REFRESH AND LOAD FRESH PROFILE FOR THIS EXPLORER
+    // =========================================================================
+    if (previousName) {
+      saveState(); // Save old explorer's progress to their personal key
+    }
 
-  updateHeader();
-  playFanfare();
-  spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 50);
-  setMascot(`G'day ${enteredName}! Welcome to Candy Quest! Pick a flavor world to start!`);
+    // Load or initialize isolated profile for the new explorer
+    state = loadUserProfile(enteredName);
+    if (selectedAvatar) {
+      state.user.avatar = selectedAvatar;
+    }
+    saveState();
+
+    // Trigger fresh burst foil opening for new user
+    const packOverlay = document.getElementById("packOverlay");
+    if (packOverlay) {
+      packOverlay.dataset.opened = "false";
+      packOverlay.style.opacity = "1";
+      packOverlay.style.display = "flex";
+    }
+
+    // Refresh all views to clean state for new user
+    showView("homeView");
+    renderHomeJars();
+    updateHeader();
+    initSpinWheel();
+    initPlayground();
+
+    playFanfare();
+    spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 60);
+    setMascot(`🎉 Welcome, ${enteredName}! A fresh Candy Quest journey has been prepared for you!`);
+  }
 }
 
 function openLoginModal() {
@@ -342,15 +395,17 @@ function openLoginModal() {
     if (nameInput) {
       nameInput.value = state.user.username || "";
       nameInput.focus();
+      nameInput.select();
     }
   }
 }
 
 function handleLogout() {
+  if (state.user && state.user.username) {
+    saveState();
+  }
   localStorage.removeItem("candy_quest_username");
-  localStorage.removeItem("candy_quest_avatar");
   state.user.username = "";
-  state.user.avatar = "🍓";
 
   const loginOverlay = document.getElementById("loginOverlay");
   if (loginOverlay) {
@@ -363,7 +418,7 @@ function handleLogout() {
   }
 
   updateHeader();
-  setMascot("👋 You have logged out! Enter an explorer name to begin a new journey!");
+  setMascot("👋 Logged out! Enter an explorer name to continue or start a new quest.");
 }
 
 function selectAvatar(avatarEmoji, el) {
@@ -1487,8 +1542,7 @@ window.onload = () => {
     if (loginOverlay) loginOverlay.style.display = "flex";
   } else {
     if (loginOverlay) loginOverlay.style.display = "none";
-    state.user.username = savedName;
-    state.user.avatar = localStorage.getItem("candy_quest_avatar") || "🍓";
+    state = loadUserProfile(savedName);
     setMascot(`Welcome back, ${savedName}! Ready to continue your DSA Quest?`);
   }
 
