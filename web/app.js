@@ -306,12 +306,12 @@ animateParticles();
 
 // UI Updates
 function updateHeader() {
-  const xp = state.user.xp;
+  const xp = (state.user && state.user.xp) || 0;
   const level = Math.floor(xp / 100) + 1;
-  state.user.level = level;
+  if (state.user) state.user.level = level;
 
-  const displayName = state.user.username || "Amruth Sai";
-  const displayAvatar = state.user.avatar || "🍓";
+  const displayName = (state.user && state.user.username) ? state.user.username : "Explorer";
+  const displayAvatar = (state.user && state.user.avatar) ? state.user.avatar : "🍓";
 
   const nameEl = document.getElementById("usernameDisplay");
   if (nameEl) nameEl.innerText = displayName;
@@ -319,10 +319,24 @@ function updateHeader() {
   const avatarEl = document.getElementById("userAvatarDisplay");
   if (avatarEl) avatarEl.innerText = displayAvatar;
 
-  document.getElementById("userLevel").innerText = `Lvl ${level}`;
-  document.getElementById("xpText").innerText = `${xp} XP (${xp % 100}/100)`;
-  document.getElementById("xpFill").style.width = `${xp % 100}%`;
-  document.getElementById("streakBadge").innerText = `🔥 ${state.user.streak}d`;
+  const dashNameEl = document.getElementById("dashUsernameDisplay");
+  if (dashNameEl) dashNameEl.innerText = displayName;
+
+  const dashAvatarEl = document.getElementById("dashAvatarLarge");
+  if (dashAvatarEl) dashAvatarEl.innerText = displayAvatar;
+
+  const lvlEl = document.getElementById("userLevel");
+  if (lvlEl) lvlEl.innerText = `Lvl ${level}`;
+
+  const xpTxt = document.getElementById("xpText");
+  if (xpTxt) xpTxt.innerText = `${xp} XP (${xp % 100}/100)`;
+
+  const xpFill = document.getElementById("xpFill");
+  if (xpFill) xpFill.style.width = `${xp % 100}%`;
+
+  const streakEl = document.getElementById("streakBadge");
+  if (streakEl) streakEl.innerText = `🔥 ${(state.user && state.user.streak) || 1}d`;
+  
   saveState();
 }
 
@@ -344,26 +358,31 @@ function handleLoginSubmit(e) {
     // =========================================================================
     // SAME NAME: DO NOT REFRESH INTERFACE OR ERASE PROGRESS
     // =========================================================================
+    state.user.username = enteredName;
     if (selectedAvatar) {
       state.user.avatar = selectedAvatar;
     }
     saveState();
     updateHeader();
+    renderDashboard();
     playSweetPop();
     setMascot(`Welcome back, ${state.user.username}! Your progress and badges are preserved.`);
   } else {
     // =========================================================================
     // DIFFERENT NAME: REFRESH AND LOAD FRESH PROFILE FOR THIS EXPLORER
     // =========================================================================
-    if (previousName) {
-      saveState(); // Save old explorer's progress to their personal key
+    if (previousName && previousName !== "Explorer") {
+      saveState(); // Save old explorer's progress
     }
 
-    // Load or initialize isolated profile for the new explorer
+    // Switch state to newly entered explorer
     state = loadUserProfile(enteredName);
+    state.user.username = enteredName;
     if (selectedAvatar) {
       state.user.avatar = selectedAvatar;
     }
+    localStorage.setItem("candy_quest_username", enteredName);
+    localStorage.setItem("candy_quest_avatar", state.user.avatar || "🍓");
     saveState();
 
     // Reset any ongoing in-memory quiz states
@@ -401,7 +420,7 @@ function openLoginModal() {
     loginOverlay.style.display = "flex";
     const nameInput = document.getElementById("loginNameInput");
     if (nameInput) {
-      nameInput.value = state.user.username || "";
+      nameInput.value = (state.user && state.user.username && state.user.username !== "Explorer") ? state.user.username : "";
       nameInput.focus();
       nameInput.select();
     }
@@ -413,7 +432,11 @@ function handleLogout() {
     saveState();
   }
   localStorage.removeItem("candy_quest_username");
-  state.user.username = "";
+  state = createDefaultUserState("Explorer");
+  updateHeader();
+  renderHomeJars();
+  renderTrackMap();
+  renderDashboard();
 
   const loginOverlay = document.getElementById("loginOverlay");
   if (loginOverlay) {
@@ -425,7 +448,6 @@ function handleLogout() {
     }
   }
 
-  updateHeader();
   setMascot("👋 Logged out! Enter an explorer name to continue or start a new quest.");
 }
 
