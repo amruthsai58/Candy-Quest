@@ -800,3 +800,89 @@ body {
   border-radius: 3px;
 }
 
+/* ==========================================================================
+   Login Screen & Profile Switcher Styles
+   ========================================================================== */
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 7, 30, 0.96);
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.login-card {
+  width: 90%;
+  max-width: 440px;
+  background: linear-gradient(135deg, rgba(34, 20, 75, 0.98), rgba(46, 27, 100, 0.95));
+  border: 2.5px solid var(--candy-gold);
+  border-radius: 28px;
+  padding: 36px 28px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 209, 102, 0.35);
+  animation: loginSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes loginSlideUp {
+  0% { transform: translateY(30px) scale(0.95); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.avatar-selector {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.avatar-chip {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--bg-subcard);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.avatar-chip:hover {
+  transform: scale(1.15);
+  border-color: var(--candy-gold);
+}
+
+.avatar-chip.selected {
+  border-color: var(--candy-gold);
+  background: linear-gradient(135deg, var(--candy-pink), var(--candy-purple));
+  box-shadow: 0 0 15px rgba(255, 209, 102, 0.7);
+  transform: scale(1.15);
+}
+
+.user-profile-btn {
+  background: linear-gradient(135deg, var(--candy-pink), var(--candy-purple));
+  color: white;
+  border: 1.5px solid var(--candy-gold);
+  padding: 5px 14px;
+  border-radius: 16px;
+  font-weight: 900;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.user-profile-btn:hover {
+  transform: scale(1.05);
+}
+
+
