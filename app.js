@@ -1,5 +1,13 @@
 // 🍬 Candy Quest - Main Web Application Engine (Enhanced with Admin Access, Real-World & Logo Design System)
 
+const TOPICS_CACHE_VERSION = "v4.5_randomized_quizzes";
+
+// Invalidate stale localStorage cache so newly randomized and diverse quizzes load immediately
+if (localStorage.getItem("candy_quest_topics_version") !== TOPICS_CACHE_VERSION) {
+  localStorage.removeItem("candy_quest_custom_topics");
+  localStorage.setItem("candy_quest_topics_version", TOPICS_CACHE_VERSION);
+}
+
 let activeTopicsList = [...ALL_TOPICS];
 
 // Load customized topic dataset if present, syncing with updated quizzes
