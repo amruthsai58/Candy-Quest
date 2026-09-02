@@ -245,6 +245,21 @@ function toggleDeviceMode() {
   playSweetPop();
 }
 
+// Avatar selection state and handler
+let selectedAvatar = "🍓";
+
+function selectAvatar(avatarEmoji, el) {
+  selectedAvatar = avatarEmoji;
+  document.querySelectorAll(".avatar-chip").forEach(c => c.classList.remove("selected"));
+  if (el) {
+    el.classList.add("selected");
+  } else {
+    const chip = document.querySelector(`.avatar-chip[data-avatar="${avatarEmoji}"]`);
+    if (chip) chip.classList.add("selected");
+  }
+  playSweetPop();
+}
+
 // Particle System matching Logo Colors
 const canvas = document.getElementById("particlesCanvas");
 const ctx = canvas ? canvas.getContext("2d") : null;
