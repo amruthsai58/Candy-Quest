@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candy Quest — Solve • Learn • Conquer | DSA Challenge Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Particle Overlay Canvas -->
+  <canvas id="particlesCanvas"></canvas>
+
+  <!-- Animated Candy Pack Burst Welcome Overlay -->
+  <div id="packOverlay" class="pack-overlay">
+    <div class="pack-foil-wrapper" onclick="burstOpenPack()">
+      <img src="assets/logo.png" alt="Candy Quest Logo" style="width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--candy-gold); box-shadow: 0 0 30px rgba(255, 209, 102, 0.8); margin-bottom: 14px;">
+      <div style="font-size: 13px; font-weight: 900; color: var(--candy-gold); letter-spacing: 2px;">CANDYMAN EXCLUSIVE</div>
+      <div style="font-size: 32px; font-weight: 900; color: white; line-height: 1.1; margin: 8px 0;">CANDY QUEST</div>
+      <div style="font-size: 12px; font-weight: 800; color: #E2D9F3;">SOLVE • LEARN • CONQUER</div>
+      <div style="background: rgba(0,0,0,0.3); padding: 8px 16px; border-radius: 14px; margin-top: 14px; font-size: 11px; font-weight: 700; border: 1px solid rgba(255,255,255,0.2);">
+        🎁 4 REAL-WORLD WORLDS + 150 TOPICS + FREE TOY INSIDE
+      </div>
+    </div>
+    <button class="btn-candy" style="margin-top: 24px; font-size: 16px; padding: 14px 36px;" onclick="burstOpenPack()">
+      💥 TEAR & BURST OPEN PACKET!
+    </button>
+  </div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand-wrapper" onclick="showView('homeView')">
+      <img src="assets/logo.png" alt="Candy Quest Logo" class="brand-logo-img">
+      <div class="brand-text-col">
+        <div class="brand-title">CANDY QUEST</div>
+        <div class="brand-tagline">SOLVE • LEARN • CONQUER</div>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div id="userLevel" class="badge-pill badge-level">Lvl 1</div>
+      <div class="xp-progress-box">
+        <div class="xp-progress-bar">
+          <div id="xpFill" class="xp-progress-fill"></div>
+        </div>
+        <div id="xpText" class="xp-text">0 XP (0/100)</div>
+      </div>
+      <div id="streakBadge" class="badge-pill badge-streak">🔥 1d</div>
+    </div>
+
+    <nav class="nav-cluster">
+      <button class="nav-btn active" data-view="homeView" onclick="showView('homeView')">🏠 Worlds</button>
+      <button class="nav-btn" data-view="packetView" onclick="showView('packetView')">🍫 Packet Lab</button>
+      <button class="nav-btn" data-view="trackMapView" onclick="showView('trackMapView')">🗺️ Track Map</button>
+      <button class="nav-btn" data-view="dashboardView" onclick="showView('dashboardView')">📊 Dashboard</button>
+      <button class="nav-btn" data-view="playgroundView" onclick="showView('playgroundView')">💻 Playground</button>
+      <button class="nav-btn" data-view="searchView" onclick="showView('searchView')">🔍 150 Topics</button>
+      <button class="nav-btn" data-view="adminView" style="border-color: var(--candy-gold);" onclick="showView('adminView')">🛡️ Admin</button>
+    </nav>
+  </header>
+
+  <!-- Main Viewport -->
+  <main class="main-container">
+
+    <!-- Hero Showcase Card -->
+    <section class="packet-hero-card">
+      <img src="assets/logo.png" alt="Candy Quest Mascot Badge" class="hero-logo-showcase" onclick="playSweetPop(); spawnBurst(window.innerWidth/2, 200, 30);">
+      <div class="hero-info-col">
+        <h1>Learn DSA Through The Candy Packet Metaphor!</h1>
+        <p>Master 150 Data Structures & Algorithms by mapping mechanical candy packet interactions (continuous chocolate slabs, Pez dispensers, and recipe caches) directly to <strong>real-world production architectures</strong> at Google, Netflix, Amazon, and Uber.</p>
+        <div class="metaphor-tags">
+          <span class="m-tag" style="border-color: var(--candy-pink);">🍓 Strawberry = Foundations & Buffers</span>
+          <span class="m-tag" style="border-color: var(--candy-orange);">🍊 Mango = Linear & Kafka Queues</span>
+          <span class="m-tag" style="border-color: var(--candy-purple);">🍇 Grape = Trees & Google Maps</span>
+          <span class="m-tag" style="border-color: var(--candy-green);">🍉 Lime = DP & Distributed Caches</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn-candy" onclick="showView('packetView')">
+          🍫 Inspect Packet Metaphor
+        </button>
+        <button class="nav-btn" style="justify-content: center;" onclick="showView('searchView')">
+          ⚡ 150 Topics Index
+        </button>
+      </div>
+    </section>
+
+    <!-- Candy Roo Mascot Banner -->
+    <div class="mascot-banner">
+      <div class="mascot-avatar" onclick="setMascot('G\'day! Every algorithm in this pack powers real production software!'); playSweetPop();">🦘</div>
+      <div id="mascotText" class="mascot-bubble">G'day! I'm Candy Roo! Pick a flavor world below or open the Packet Lab to see real-world analogies in action!</div>
+    </div>
+
+    <!-- 1. Home View -->
+    <div id="homeView" class="view-panel">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <div>
+          <h2 style="font-size: 22px; font-weight: 900; color: var(--candy-gold);">🏺 4 Flavor Worlds (DSA Learning Tracks)</h2>
+          <p style="color: var(--text-dim); font-size: 13px;">Click on any candy jar below to enter its interactive learning path:</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-candy" style="font-size: 13px; padding: 8px 18px;" onclick="state.activeTrack = 'FOUNDATIONS'; showView('trackMapView');">
+            🚀 Play Next Topic
+          </button>
+        </div>
+      </div>
+      
+      <div id="jarsGrid" class="jars-grid"></div>
+    </div>
+
+    <!-- 2. Packet Lab View (Real-World Deep Dive) -->
+    <div id="packetView" class="view-panel" style="display: none;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div>
+          <h2 style="font-size: 24px; font-weight: 900; color: var(--candy-gold);">🍫 Interactive Candy Packet & Real-World Usage Lab</h2>
+          <p style="color: var(--text-sub); font-size: 14px;">Explore how physical candy components mirror high-scale enterprise systems:</p>
+        </div>
+        <button class="nav-btn" onclick="showView('homeView')">⬅ Back to Worlds</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+        
+        <!-- Metaphor Card 1 -->
+        <div class="world-card" style="align-items: flex-start; text-align: left; --glow-color: rgba(255, 0, 127, 0.4);">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 28px;">🍫</span>
+            <div>
+              <div style="font-weight: 900; font-size: 16px; color: var(--candy-pink);">Chocolate Slab Array</div>
+              <div style="font-size: 11px; color: var(--text-dim);">Arrays & Direct Memory Indexing</div>
+            </div>
+          </div>
+          <div style="font-size: 13px; line-height: 1.5; color: var(--text-sub);">
+            A solid segmented chocolate bar where snapping off piece <code>#4</code> is instant <strong>O(1)</strong> because each block has fixed contiguous memory size.
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--candy-pink); padding: 10px; border-radius: 12px; margin-top: 14px; width: 100%;">
+            <strong style="color: var(--candy-pink); font-size: 12px;">🏭 Production Usage:</strong>
+            <p style="font-size: 11px; color: #FFF; margin-top: 2px;">Image Pixel Grids, High-Frequency Trading Order Books, Audio Ring Buffers.</p>
+          </div>
+        </div>
+
+        <!-- Metaphor Card 2 -->
+        <div class="world-card" style="align-items: flex-start; text-align: left; --glow-color: rgba(255, 158, 0, 0.4);">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 28px;">🍬</span>
+            <div>
+              <div style="font-weight: 900; font-size: 16px; color: var(--candy-orange);">Wrapped Candy Ribbon</div>
+              <div style="font-size: 11px; color: var(--text-dim);">Linked Lists & Dynamic Chains</div>
+            </div>
+          </div>
+          <div style="font-size: 13px; line-height: 1.5; color: var(--text-sub);">
+            Individually wrapped chews connected by string twists. Inserting a new chew anywhere takes <strong>O(1)</strong> pointer splicing without moving the rest!
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--candy-orange); padding: 10px; border-radius: 12px; margin-top: 14px; width: 100%;">
+            <strong style="color: var(--candy-orange); font-size: 12px;">🏭 Production Usage:</strong>
+            <p style="font-size: 11px; color: #FFF; margin-top: 2px;">LRU Cache Eviction (Redis/Memcached), Browser Back/Forward History.</p>
+          </div>
+        </div>
+
+        <!-- Metaphor Card 3 -->
+        <div class="world-card" style="align-items: flex-start; text-align: left; --glow-color: rgba(131, 56, 236, 0.4);">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 28px;">🍭</span>
+            <div>
+              <div style="font-weight: 900; font-size: 16px; color: var(--candy-purple);">Branching Lollipop Tree</div>
+              <div style="font-size: 11px; color: var(--text-dim);">BST, Tries & Graph Logistics</div>
+            </div>
+          </div>
+          <div style="font-size: 13px; line-height: 1.5; color: var(--text-sub);">
+            Branching sugar sticks where sour candies hang on left buds and sweet on right. Google autocomplete follows the lettered candy branches in <strong>O(Length)</strong>.
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--candy-purple); padding: 10px; border-radius: 12px; margin-top: 14px; width: 100%;">
+            <strong style="color: var(--candy-purple); font-size: 12px;">🏭 Production Usage:</strong>
+            <p style="font-size: 11px; color: #FFF; margin-top: 2px;">Google Search Autocomplete (Tries), GPS Navigation Routing (Dijkstra/A*).</p>
+          </div>
+        </div>
+
+        <!-- Metaphor Card 4 -->
+        <div class="world-card" style="align-items: flex-start; text-align: left; --glow-color: rgba(56, 176, 0, 0.4);">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 28px;">🎁</span>
+            <div>
+              <div style="font-weight: 900; font-size: 16px; color: var(--candy-green);">Assorted Recipe Box</div>
+              <div style="font-size: 11px; color: var(--text-dim);">Dynamic Programming & Memoization</div>
+            </div>
+          </div>
+          <div style="font-size: 13px; line-height: 1.5; color: var(--text-sub);">
+            Saving previously solved candy recipe steps in a memory grid so you never re-cook identical batches. Turns exponential <strong>O(2^N)</strong> into blazing <strong>O(N)</strong>!
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--candy-green); padding: 10px; border-radius: 12px; margin-top: 14px; width: 100%;">
+            <strong style="color: var(--candy-green); font-size: 12px;">🏭 Production Usage:</strong>
+            <p style="font-size: 11px; color: #FFF; margin-top: 2px;">Flight Ticket Pricing Algorithms, DNA Alignment, Robotic Pathfinding.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3. Track Map View -->
+    <div id="trackMapView" class="view-panel" style="display: none;">
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 18px;">
+        <button class="nav-btn" onclick="showView('homeView')">⬅ Back to Worlds</button>
+        <div>
+          <h2 id="trackMapTitle" style="font-size: 22px; font-weight: 900; color: var(--candy-gold);">Strawberry Foundations</h2>
+          <div id="trackMapDesc" style="color: var(--text-dim); font-size: 13px;">Foundational building blocks</div>
+        </div>
+      </div>
+      <div id="trackTrailGrid" class="trail-grid"></div>
+    </div>
+
+    <!-- 4. Topic Detail View -->
+    <div id="topicDetailView" class="view-panel" style="display: none;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <button class="nav-btn" onclick="showView('trackMapView')">⬅ Back to Map</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <span id="topicTrackBadge" class="badge-pill" style="background: var(--candy-pink);">Strawberry</span>
+          <span id="topicDiff" style="background: var(--bg-subcard); padding: 4px 10px; border-radius: 8px; color: var(--candy-gold); font-weight: bold;">★★★☆☆</span>
+          <span id="topicTag" style="background: var(--bg-subcard); padding: 4px 10px; border-radius: 8px; color: var(--candy-green); font-weight: bold;">Arrays</span>
+          <span id="topicTimeComp" style="background: var(--bg-subcard); padding: 4px 10px; border-radius: 8px; color: var(--candy-orange); font-weight: bold;">O(N)</span>
+        </div>
+      </div>
+
+      <h1 id="topicTitle" style="font-size: 28px; font-weight: 900; margin-bottom: 16px;">Topic Title</h1>
+
+      <div style="display: flex; gap: 14px; margin-bottom: 20px; align-items: center;">
+        <button class="btn-candy" onclick="startQuiz()">
+          🎯 Launch Challenge Quiz (+XP)
+        </button>
+        <button class="nav-btn" onclick="showView('playgroundView')">
+          💻 Practice in Java Playground
+        </button>
+        <button id="btnAdminDeleteCurrent" class="btn-danger" style="display: none; padding: 10px 18px;" onclick="deleteCurrentTopic()">
+          🗑️ Delete Topic (Admin)
+        </button>
+      </div>
+
+      <!-- Real-World Usage & Candy Metaphor Highlights -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <div class="real-world-box">
+          <div class="real-world-header">
+            <span>🏭</span>
+            <span>Real-World Production Deployment</span>
+          </div>
+          <p id="topicRealWorld" style="font-size: 13px; color: #FFF; line-height: 1.5;"></p>
+        </div>
+
+        <div class="packet-metaphor-box">
+          <div class="packet-metaphor-header">
+            <span>🍫</span>
+            <span>Candy / Chocolate Packet Metaphor</span>
+          </div>
+          <p id="topicMetaphor" style="font-size: 13px; color: #FFF; line-height: 1.5;"></p>
+        </div>
+      </div>
+
+      <!-- Detail Split View -->
+      <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px;">
+        <div>
+          <div style="background: var(--bg-card); border-radius: 18px; padding: 22px; border: 1.5px solid rgba(157, 78, 221, 0.3);">
+            <h3 style="color: var(--candy-gold); font-size: 16px; margin-bottom: 12px; font-weight: 900;">📖 Theoretical & Algorithmic Mechanics</h3>
+            <div id="topicExplanation" style="line-height: 1.6; font-size: 14px; color: #E2D9F3;"></div>
+          </div>
+          <div style="background: #090514; border-radius: 18px; padding: 20px; margin-top: 16px; border: 1.5px solid rgba(131, 56, 236, 0.4);">
+            <h3 style="color: var(--candy-green); font-size: 13px; margin-bottom: 10px; font-family: monospace;">☕ Java 21 Production Code Snippet</h3>
+            <pre id="topicCodeSnippet" style="color: #7EE787; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;"></pre>
+          </div>
+        </div>
+
+        <div>
+          <div class="visualizer-pane" id="visContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Quiz View -->
+    <div id="quizView" class="view-panel" style="display: none;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <button class="nav-btn" onclick="showView('topicDetailView')">⬅ Exit Quiz</button>
+        <h2 id="quizTopicTitle" style="font-size: 20px; font-weight: 900; color: var(--candy-gold);">Quiz Challenge</h2>
+        <span id="quizQType" class="badge-pill" style="background: var(--candy-green); color: #0D071E;">[MCQ]</span>
+      </div>
+
+      <div class="quiz-card">
+        <h3 id="quizPrompt" style="font-size: 18px; font-weight: 800; margin-bottom: 16px; color: white;">Question Prompt</h3>
+        <pre id="quizCodeBox" style="background: #090514; color: #7EE787; font-family: monospace; padding: 12px; border-radius: 8px; margin-bottom: 16px; display: none;"></pre>
+        <div id="quizOptionsContainer"></div>
+        <div id="quizFeedback" style="margin-top: 14px; font-size: 15px;"></div>
+        <div style="text-align: right; margin-top: 16px;">
+          <button id="btnQuizNext" class="btn-candy" style="display: none; padding: 10px 24px;" onclick="nextQuizQuestion()">Next Question ➡</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Dashboard View -->
+    <div id="dashboardView" class="view-panel" style="display: none;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+        <h2 style="font-size: 24px; font-weight: 900; color: white;">📊 Confectionary Progress Dashboard</h2>
+        <img src="assets/logo.png" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--candy-gold);">
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+        <div style="background: var(--bg-card); padding: 18px; border-radius: 18px; text-align: center; border: 1.5px solid var(--candy-gold);">
+          <div id="dashTotalXp" style="font-size: 32px; font-weight: 900; color: var(--candy-gold);">0</div>
+          <div style="color: var(--text-dim); font-size: 12px; font-weight: 800;">🍬 Total XP Earned</div>
+        </div>
+        <div style="background: var(--bg-card); padding: 18px; border-radius: 18px; text-align: center; border: 1.5px solid var(--candy-green);">
+          <div id="dashLevel" style="font-size: 32px; font-weight: 900; color: var(--candy-green);">1</div>
+          <div style="color: var(--text-dim); font-size: 12px; font-weight: 800;">⭐ Master Level</div>
+        </div>
+        <div style="background: var(--bg-card); padding: 18px; border-radius: 18px; text-align: center; border: 1.5px solid var(--candy-orange);">
+          <div id="dashStreak" style="font-size: 32px; font-weight: 900; color: var(--candy-orange);">1d</div>
+          <div style="color: var(--text-dim); font-size: 12px; font-weight: 800;">🔥 Day Streak</div>
+        </div>
+        <div style="background: var(--bg-card); padding: 18px; border-radius: 18px; text-align: center; border: 1.5px solid var(--candy-pink);">
+          <div id="dashCleared" style="font-size: 32px; font-weight: 900; color: var(--candy-pink);">0 / 150</div>
+          <div style="color: var(--text-dim); font-size: 12px; font-weight: 800;">🏆 Topics Mastered</div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 18px; font-weight: 800; color: var(--candy-gold); margin-bottom: 12px;">🎁 Free Toy Inside Collection (Every 10 Topics)</h3>
+      <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+        <div style="background: var(--bg-card); padding: 14px; border-radius: 14px; width: 170px; text-align: center; border: 2px solid var(--candy-green);">
+          <div style="font-size: 34px;">👾</div>
+          <div style="font-weight: 900; font-size: 13px; color: var(--candy-green);">Pixel Roo Skin</div>
+          <div style="font-size: 10px; color: var(--candy-gold); margin-top: 4px;">10 Topics</div>
+        </div>
+        <div style="background: var(--bg-card); padding: 14px; border-radius: 14px; width: 170px; text-align: center; border: 1px solid #3A217A; opacity: 0.6;">
+          <div style="font-size: 34px;">🍭</div>
+          <div style="font-weight: 900; font-size: 13px;">Lollipop Wand</div>
+          <div style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">20 Topics</div>
+        </div>
+        <div style="background: var(--bg-card); padding: 14px; border-radius: 14px; width: 170px; text-align: center; border: 1px solid #3A217A; opacity: 0.6;">
+          <div style="font-size: 34px;">🥷</div>
+          <div style="font-weight: 900; font-size: 13px;">Ninja Roo</div>
+          <div style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">30 Topics</div>
+        </div>
+        <div style="background: var(--bg-card); padding: 14px; border-radius: 14px; width: 170px; text-align: center; border: 1px solid #3A217A; opacity: 0.6;">
+          <div style="font-size: 34px;">👑</div>
+          <div style="font-weight: 900; font-size: 13px;">Royal Crown</div>
+          <div style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">100 Topics</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Playground View -->
+    <div id="playgroundView" class="view-panel" style="display: none;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+        <h2 style="font-size: 22px; font-weight: 900; color: var(--candy-green);">💻 Java 21 DSA Code Playground</h2>
+        <button class="btn-candy" onclick="runPlaygroundCode()">
+          ▶ Run Code & Test Cases
+        </button>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <textarea id="playgroundEditor" style="width: 100%; height: 360px; background: #090514; color: #7EE787; font-family: 'JetBrains Mono', monospace; padding: 16px; border-radius: 14px; border: 1.5px solid rgba(131,56,236,0.4); font-size: 13px;">
+import java.util.*;
+
+/**
+ * Candy Quest Live Playground
+ * Real-World Deployment: High-Frequency Stock Trading Pair Finder
+ */
+public class TwoSumProduction {
+    public static int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            int complement = target - nums[i];
+            if (map.containsKey(complement)) {
+                return new int[]{map.get(complement), i};
+            }
+            map.put(nums[i], i);
+        }
+        return new int[]{};
+    }
+
+    public static void main(String[] args) {
+        int[] candies = {2, 7, 11, 15};
+        int target = 9;
+        System.out.println("Pair Indices: " + Arrays.toString(twoSum(candies, target)));
+    }
+}</textarea>
+        </div>
+        <div>
+          <pre id="playgroundConsole" style="width: 100%; height: 360px; background: var(--bg-card); color: var(--text-pure); font-family: 'JetBrains Mono', monospace; padding: 16px; border-radius: 14px; border: 1.5px solid rgba(157,78,221,0.3); font-size: 12px; overflow-y: auto;">
+[Java 21 Virtual Machine Sandbox Ready]
+Click 'Run Code & Test Cases' to compile and execute assertions...</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Search View -->
+    <div id="searchView" class="view-panel" style="display: none;">
+      <h2 style="font-size: 22px; font-weight: 900; color: white; margin-bottom: 12px;">🔍 150 Topics Explorer (Search by Real-World Usage or Tag)</h2>
+      <input type="text" id="searchInput" placeholder="Search by topic name, tag, real-world deployment (e.g., Netflix, Google, Cache)..." style="width: 100%; padding: 14px 20px; border-radius: 14px; background: var(--bg-card); color: white; border: 1.5px solid var(--candy-purple); font-size: 14px; margin-bottom: 16px;" oninput="renderSearch()">
+      <div id="searchResults"></div>
+    </div>
+
+    <!-- 9. Admin Control Center View -->
+    <div id="adminView" class="view-panel" style="display: none;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; background: rgba(34, 20, 75, 0.85); padding: 16px 24px; border-radius: 18px; border: 2px solid var(--candy-gold);">
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h2 style="font-size: 22px; font-weight: 900; color: var(--candy-gold);">🛡️ Admin Topic Management Console</h2>
+            <span id="adminStatusBadge" class="admin-badge-active">👑 ADMIN ACCESS GRANTED</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-sub); margin-top: 4px;">Direct administrative power to create, calibrate, and remove DSA topics across the 4 flavor worlds.</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-danger" onclick="resetToFactoryTopics()">🔄 Reset to Factory (150 Topics)</button>
+        </div>
+      </div>
+
+      <div class="admin-grid">
+        
+        <!-- Add New Topic Form -->
+        <div class="admin-card">
+          <div class="admin-card-title">
+            <span>➕</span>
+            <span>Add New DSA Topic</span>
+          </div>
+
+          <form id="addTopicForm" onsubmit="handleAdminAddTopic(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Flavor Track World</label>
+                <select id="adminTrackSelect" class="form-select" required>
+                  <option value="FOUNDATIONS">🍓 Strawberry (Foundations)</option>
+                  <option value="LINEAR">🍊 Mango (Linear Structures)</option>
+                  <option value="TREES_GRAPHS">🍇 Grape (Trees & Graphs)</option>
+                  <option value="ADVANCED">🍉 Lime (Advanced & DP)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Difficulty Rating</label>
+                <select id="adminDiffSelect" class="form-select">
+                  <option value="1">★☆☆☆☆ (Beginner)</option>
+                  <option value="2">★★☆☆☆ (Easy)</option>
+                  <option value="3" selected>★★★☆☆ (Medium)</option>
+                  <option value="4">★★★★☆ (Hard)</option>
+                  <option value="5">★★★★★ (Expert)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Topic Title</label>
+                <input type="text" id="adminTopicName" class="form-input" placeholder="e.g. Trie Prefix Search" required>
+              </div>
+              <div class="form-group">
+                <label>Category / Tag</label>
+                <input type="text" id="adminTopicTag" class="form-input" placeholder="e.g. Strings / Trees" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Time Complexity</label>
+                <input type="text" id="adminTimeComp" class="form-input" placeholder="e.g. O(Length)" value="O(N)" required>
+              </div>
+              <div class="form-group">
+                <label>Space Complexity</label>
+                <input type="text" id="adminSpaceComp" class="form-input" placeholder="e.g. O(Alphabet * N)" value="O(1)" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Visualizer Engine</label>
+              <select id="adminVisSelect" class="form-select">
+                <option value="ARRAY">🍫 Array / Sorting Bar Visualizer</option>
+                <option value="LINKED_LIST">🍬 Linked List Node Pointer Ribbon</option>
+                <option value="TREE">🍭 Binary Tree / Graph BFS Visualizer</option>
+                <option value="RECURSION">🎁 Recursion / DP Memoization Tree</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>🏭 Real-World Production Deployment</label>
+              <input type="text" id="adminRealWorld" class="form-input" placeholder="e.g. Google Search Autocomplete, Redis Cache" required>
+            </div>
+
+            <div class="form-group">
+              <label>🍫 Candy / Chocolate Packet Metaphor</label>
+              <input type="text" id="adminMetaphor" class="form-input" placeholder="e.g. Branching sugar sticks with sweet & sour flavors" required>
+            </div>
+
+            <div class="form-group">
+              <label>📖 Summary & Explanation</label>
+              <textarea id="adminSummary" class="form-textarea" placeholder="Brief explanation of the core algorithmic principles..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>☕ Java 21 Code Snippet</label>
+              <textarea id="adminCode" class="form-textarea" style="font-family: monospace; font-size: 11px;" placeholder="// Java 21 code implementation..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-candy" style="width: 100%; justify-content: center; margin-top: 8px;">
+              🚀 Publish & Add Topic to World
+            </button>
+          </form>
+        </div>
+
+        <!-- Manage & Delete Existing Topics -->
+        <div class="admin-card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+            <div class="admin-card-title" style="margin-bottom: 0;">
+              <span>🗑️</span>
+              <span>Manage & Delete Topics</span>
+            </div>
+            <span id="adminTopicCountBadge" class="badge-pill badge-streak">150 Topics</span>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+            <input type="text" id="adminSearchInput" placeholder="Filter topics to delete or inspect..." class="form-input" oninput="renderAdminTopicList()">
+            <select id="adminFilterTrack" class="form-select" style="width: 170px;" onchange="renderAdminTopicList()">
+              <option value="ALL">All Worlds</option>
+              <option value="FOUNDATIONS">🍓 Strawberry</option>
+              <option value="LINEAR">🍊 Mango</option>
+              <option value="TREES_GRAPHS">🍇 Grape</option>
+              <option value="ADVANCED">🍉 Lime</option>
+            </select>
+          </div>
+
+          <div id="adminTopicListScroll" class="admin-topic-list-scroll"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script src="topics.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
