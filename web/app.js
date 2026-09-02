@@ -2,11 +2,14 @@
 
 let activeTopicsList = [...ALL_TOPICS];
 
-// Load customized topic dataset if present
+// Load customized topic dataset if present, syncing with updated quizzes
 try {
   const customTopics = localStorage.getItem("candy_quest_custom_topics");
   if (customTopics) {
-    activeTopicsList = JSON.parse(customTopics);
+    const parsed = JSON.parse(customTopics);
+    // If user has custom added topics, preserve them, but refresh factory topics with new diverse quizzes
+    const customAdded = parsed.filter(p => !ALL_TOPICS.some(a => a.id === p.id));
+    activeTopicsList = [...ALL_TOPICS, ...customAdded];
   }
 } catch (e) {}
 
@@ -601,6 +604,9 @@ function startQuiz() {
   renderQuizQuestion(topic);
 }
 
+let currentShuffledQuizOptions = [];
+let currentShuffledCorrectIdx = 0;
+
 function renderQuizQuestion(topic) {
   const q = topic.quiz[currentQuizQ];
   document.getElementById("quizTopicTitle").innerText = `🎯 ${topic.name} Challenge (${currentQuizQ + 1}/${topic.quiz.length})`;
@@ -620,7 +626,16 @@ function renderQuizQuestion(topic) {
   document.getElementById("quizFeedback").innerText = "";
   document.getElementById("btnQuizNext").style.display = "none";
 
-  q.options.forEach((opt, idx) => {
+  // Dynamically shuffle options so correct answer is randomly distributed across A, B, C, D
+  const indexed = q.options.map((opt, i) => ({ opt, isCorrect: i === q.correct }));
+  for (let i = indexed.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+  }
+  currentShuffledQuizOptions = indexed.map(item => item.opt);
+  currentShuffledCorrectIdx = indexed.findIndex(item => item.isCorrect);
+
+  currentShuffledQuizOptions.forEach((opt, idx) => {
     const btn = document.createElement("button");
     btn.className = "quiz-option-btn";
     btn.innerText = `${String.fromCharCode(65 + idx)})  ${opt}`;
@@ -631,7 +646,7 @@ function renderQuizQuestion(topic) {
 
 function selectQuizOption(topic, selectedIdx, btnElem) {
   const q = topic.quiz[currentQuizQ];
-  const isCorrect = selectedIdx === q.correct;
+  const isCorrect = selectedIdx === currentShuffledCorrectIdx;
 
   document.querySelectorAll(".quiz-option-btn").forEach(b => b.disabled = true);
 
@@ -645,6 +660,11 @@ function selectQuizOption(topic, selectedIdx, btnElem) {
     setMascot(`Brilliant! Look at those candy drops! +${q.xp} XP!`);
   } else {
     btnElem.classList.add("incorrect");
+    // Also highlight the true correct option in green so the user learns
+    const optionBtns = document.querySelectorAll(".quiz-option-btn");
+    if (optionBtns[currentShuffledCorrectIdx]) {
+      optionBtns[currentShuffledCorrectIdx].classList.add("correct");
+    }
     playWrongSound();
     document.getElementById("quizFeedback").innerHTML = `<span style="color: var(--candy-pink); font-weight: 900;">🍭 Oops! ${q.explanation}</span>`;
     setMascot("No worries! Take another bite of the logic next time!");
