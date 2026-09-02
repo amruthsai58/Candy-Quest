@@ -167,6 +167,26 @@ function openLoginModal() {
   }
 }
 
+function handleLogout() {
+  localStorage.removeItem("candy_quest_username");
+  localStorage.removeItem("candy_quest_avatar");
+  state.user.username = "";
+  state.user.avatar = "🍓";
+
+  const loginOverlay = document.getElementById("loginOverlay");
+  if (loginOverlay) {
+    loginOverlay.style.display = "flex";
+    const nameInput = document.getElementById("loginNameInput");
+    if (nameInput) {
+      nameInput.value = "";
+      nameInput.focus();
+    }
+  }
+
+  updateHeader();
+  setMascot("👋 You have logged out! Enter an explorer name to begin a new journey!");
+}
+
 function selectAvatar(avatarEmoji, el) {
   state.user.avatar = avatarEmoji;
   document.querySelectorAll(".avatar-chip").forEach(c => c.classList.remove("selected"));
@@ -485,6 +505,12 @@ function renderDashboard() {
   document.getElementById("dashTotalXp").innerText = state.user.xp;
   document.getElementById("dashLevel").innerText = state.user.level;
   document.getElementById("dashStreak").innerText = `${state.user.streak}d`;
+
+  const dashUser = document.getElementById("dashUsernameDisplay");
+  if (dashUser) dashUser.innerText = state.user.username || "Explorer";
+
+  const dashAvatar = document.getElementById("dashAvatarLarge");
+  if (dashAvatar) dashAvatar.innerText = state.user.avatar || "🍓";
 
   const completedCount = Object.keys(state.completedTopics).length;
   document.getElementById("dashCleared").innerText = `${completedCount} / ${activeTopicsList.length}`;
