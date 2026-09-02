@@ -1536,9 +1536,6 @@ function claimActivityBonus() {
 
 // Initialize
 window.onload = () => {
-  const savedName = localStorage.getItem("candy_quest_username");
-  const loginOverlay = document.getElementById("loginOverlay");
-
   // Apply saved device mode
   setDeviceMode(currentDeviceMode);
 
@@ -1546,12 +1543,15 @@ window.onload = () => {
   const soundBtn = document.getElementById("soundToggleBtn");
   if (soundBtn) soundBtn.innerText = isSoundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
 
-  if (!savedName) {
-    if (loginOverlay) loginOverlay.style.display = "flex";
-  } else {
-    if (loginOverlay) loginOverlay.style.display = "none";
-    state = loadUserProfile(savedName);
-    setMascot(`Welcome back, ${savedName}! Ready to continue your DSA Quest?`);
+  // ALWAYS show the login modal on every site visit / reload
+  const loginOverlay = document.getElementById("loginOverlay");
+  if (loginOverlay) {
+    loginOverlay.style.display = "flex";
+    const nameInput = document.getElementById("loginNameInput");
+    if (nameInput) {
+      nameInput.value = state.user.username || "";
+      nameInput.focus();
+    }
   }
 
   updateHeader();
