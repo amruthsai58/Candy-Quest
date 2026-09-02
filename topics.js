@@ -211,6 +211,169 @@ const SEED_DATA = [
   ["Centroid Decomposition", "Advanced Tree", "Divide-and-conquer on trees by finding centroid nodes.", 5, "O(N log N)", "O(N)", "TREE", "ADVANCED", "Hierarchical Tree Clustering in Big Data", "Finding the center-of-gravity candy node that splits any tree into balanced halves."]
 ];
 
+function createShuffledQuestion(type, question, code, options, correctIdx, explanation, xp) {
+  const indexed = options.map((opt, i) => ({ opt, isCorrect: i === correctIdx }));
+  for (let i = indexed.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+  }
+  const q = {
+    type,
+    question,
+    options: indexed.map(item => item.opt),
+    correct: indexed.findIndex(item => item.isCorrect),
+    explanation,
+    xp
+  };
+  if (code) q.code = code;
+  return q;
+}
+
+function generateDiverseTopicQuiz(name, tag, timeComp, spaceComp, trackKey, realWorldUsage, index) {
+  // 1. Concept & Real-World MCQ
+  const q1 = createShuffledQuestion(
+    "MCQ",
+    `How does ${name} deliver critical architectural value in ${realWorldUsage}?`,
+    null,
+    [
+      `Provides optimized ${timeComp} execution to scale ${realWorldUsage}`,
+      `Guarantees worst-case O(N!) factorial CPU consumption`,
+      `Acts as an unindexed memory leak that stalls event loops`,
+      `Restricts operations exclusively to single-byte primitive characters`
+    ],
+    0,
+    `${name} is engineered to provide ${timeComp} efficiency in ${realWorldUsage}.`,
+    25
+  );
+
+  // 2. Asymptotic Complexity Question with diverse distractors
+  const distractors = [
+    `Time: ${timeComp}, Space: ${spaceComp}`,
+    `Time: O(N^2), Space: O(N)`,
+    `Time: O(N log N), Space: O(1)`,
+    `Time: O(1), Space: O(N!)`
+  ];
+  const q2 = createShuffledQuestion(
+    "COMPLEXITY",
+    `What are the asymptotic Time & Auxiliary Space bounds for ${name}?`,
+    null,
+    distractors,
+    0,
+    `The standard theoretical bounds for ${name} are ${timeComp} time and ${spaceComp} space.`,
+    25
+  );
+
+  // 3. Domain-Specific Code Trace / Algorithmic Question
+  let q3;
+  const tagLower = (tag || "").toLowerCase();
+  const trackLower = (trackKey || "").toLowerCase();
+
+  if (tagLower.includes("array") || tagLower.includes("two pointer") || tagLower.includes("sliding window") || tagLower.includes("prefix")) {
+    const valA = (index % 5) + 2;
+    const valB = valA * 3;
+    const target = valA + valB;
+    q3 = createShuffledQuestion(
+      "CODE_TRACE",
+      `Trace this array pointer snippet for ${name}. What is the output?`,
+      `int[] arr = {${valA}, 7, ${valB}, 15};\nint target = ${target};\nint matchSum = 0;\nif (arr[0] + arr[2] == target) {\n    matchSum = arr[0] * arr[2];\n}\nSystem.out.print(matchSum);`,
+      [`${valA * valB}`, `${target}`, `${valA + valB + 7}`, "0"],
+      0,
+      `arr[0] (${valA}) + arr[2] (${valB}) == ${target} is TRUE, so output is ${valA} * ${valB} = ${valA * valB}.`,
+      30
+    );
+  } else if (tagLower.includes("string")) {
+    const shift = (index % 3) + 1;
+    const baseChar = "c";
+    const shiftedChar = String.fromCharCode(baseChar.charCodeAt(0) + shift);
+    q3 = createShuffledQuestion(
+      "CODE_TRACE",
+      `What character value is printed by this string buffer evaluation in ${name}?`,
+      `String candy = "${baseChar}andy";\nchar result = (char)(candy.charAt(0) + ${shift});\nSystem.out.print(result);`,
+      [`'${shiftedChar}'`, `'${baseChar}'`, `'z'`, `${shift}`],
+      0,
+      `ASCII for '${baseChar}' (${baseChar.charCodeAt(0)}) + ${shift} = ${baseChar.charCodeAt(0) + shift}, which maps to character '${shiftedChar}'.`,
+      30
+    );
+  } else if (tagLower.includes("linked list")) {
+    const val1 = 10 * ((index % 4) + 1);
+    const val2 = val1 + 10;
+    const val3 = val2 + 10;
+    q3 = createShuffledQuestion(
+      "CODE_TRACE",
+      `What is the value of 'curr.val' after these pointer assignments in ${name}?`,
+      `class Node { int val; Node next; Node(int v){ val = v; } }\nNode a = new Node(${val1});\na.next = new Node(${val2});\na.next.next = new Node(${val3});\nNode curr = a.next.next;\nSystem.out.print(curr.val);`,
+      [`${val3}`, `${val1}`, `${val2}`, "null"],
+      0,
+      `a.next points to ${val2}, and a.next.next points to ${val3}. Therefore curr.val is ${val3}.`,
+      30
+    );
+  } else if (tagLower.includes("stack") || tagLower.includes("queue") || tagLower.includes("deque")) {
+    const pushA = (index % 10) + 5;
+    const pushB = pushA + 10;
+    const pushC = pushB + 10;
+    q3 = createShuffledQuestion(
+      "CODE_TRACE",
+      `What value does 'stack.peek()' return after this sequence in ${name}?`,
+      `Deque<Integer> stack = new ArrayDeque<>();\nstack.push(${pushA});\nstack.push(${pushB});\nstack.pop();\nstack.push(${pushC});\nSystem.out.print(stack.peek());`,
+      [`${pushC}`, `${pushB}`, `${pushA}`, "0"],
+      0,
+      `Pushed ${pushA}, pushed ${pushB}, popped ${pushB} (LIFO), then pushed ${pushC}. Top of stack is ${pushC}.`,
+      30
+    );
+  } else if (tagLower.includes("tree") || tagLower.includes("graph") || tagLower.includes("trie") || tagLower.includes("heap")) {
+    const p1 = 40, p2 = 10, p3 = 30;
+    q3 = createShuffledQuestion(
+      "CODE_TRACE",
+      `What value is printed after operating on this PriorityQueue/Min-Heap in ${name}?`,
+      `PriorityQueue<Integer> heap = new PriorityQueue<>();\nheap.add(${p1});\nheap.add(${p2});\nheap.add(${p3});\nheap.poll(); // removes smallest\nSystem.out.print(heap.peek());`,
+      [`${p3}`, `${p2}`, `${p1}`, "null"],
+      0,
+      `Smallest value ${p2} is removed by poll(). The new minimum element at the top of the min-heap is ${p3}.`,
+      30
+    );
+  } else if (tagLower.includes("dynamic") || tagLower.includes("dp") || tagLower.includes("recursion")) {
+    const steps = (index % 3) + 3; // 3, 4, 5
+    // Fibonacci: 1, 2, 3, 5, 8
+    const fibMap = { 3: 3, 4: 5, 5: 8 };
+    const ans = fibMap[steps] || 3;
+    q3 = createShuffledQuestion(
+      "CODE_TRACE",
+      `What is the memoized value in dp[${steps - 1}] for this subproblem transition in ${name}?`,
+      `int[] dp = new int[${steps}];\ndp[0] = 1; dp[1] = 2;\nfor(int i = 2; i < ${steps}; i++) {\n    dp[i] = dp[i-1] + dp[i-2];\n}\nSystem.out.print(dp[${steps - 1}]);`,
+      [`${ans}`, `${ans - 1}`, `${ans + 2}`, "1"],
+      0,
+      `State transition dp[i] = dp[i-1] + dp[i-2] yields value ${ans} at index ${steps - 1}.`,
+      30
+    );
+  } else if (tagLower.includes("bit")) {
+    const num = 12; // 1100
+    const bitResult = num & (num - 1); // 1100 & 1011 = 1000 = 8
+    q3 = createShuffledQuestion(
+      "CODE_TRACE",
+      `What is the result of executing this bitwise operation in ${name}?`,
+      `int x = ${num}; // binary 1100\nint result = x & (x - 1);\nSystem.out.print(result);`,
+      [`${bitResult}`, `${num}`, `${num - 1}`, "0"],
+      0,
+      `The expression x & (x - 1) clears the lowest set bit: 1100 & 1011 = 1000 in binary (${bitResult} in decimal).`,
+      30
+    );
+  } else {
+    // General Algorithm / Sorting / Search / Math
+    const a = 36, b = 24;
+    q3 = createShuffledQuestion(
+      "CODE_TRACE",
+      `What is the computed Euclidean GCD result for inputs a=${a}, b=${b} in ${name}?`,
+      `int a = ${a}, b = ${b};\nwhile (b != 0) {\n    int t = b;\n    b = a % b;\n    a = t;\n}\nSystem.out.print(a);`,
+      ["12", "6", "24", "1"],
+      0,
+      `GCD(36, 24) = 12 (36 % 24 = 12; 24 % 12 = 0; loop terminates with a = 12).`,
+      30
+    );
+  }
+
+  return [q1, q2, q3];
+}
+
 const ALL_TOPICS = SEED_DATA.map((item, index) => {
   const [name, tag, summary, difficulty, timeComp, spaceComp, visType, trackKey, realWorldUsage, candyMetaphor] = item;
   const id = `topic_${trackKey.toLowerCase()}_${index + 1}`;
@@ -267,37 +430,7 @@ public class ${name.replace(/[^a-zA-Z0-9]/g, "")}ProductionDemo {
         System.out.println("Processing " + data.length + " production units with ${timeComp} time!");
     }
 }`,
-    quiz: [
-      {
-        type: "MCQ",
-        question: `How is ${name} typically deployed in high-scale real-world production systems?`,
-        options: [
-          `In ${realWorldUsage} to guarantee optimal step efficiency`,
-          "To consume infinite thread stack memory without bounds",
-          "As a decorative dummy wrapper that adds zero performance value",
-          "Only for single-character ASCII strings"
-        ],
-        correct: 0,
-        explanation: `${name} is standardly leveraged for ${realWorldUsage}.`,
-        xp: 25
-      },
-      {
-        type: "COMPLEXITY",
-        question: `What is the asymptotic time complexity for ${name}?`,
-        options: ["O(1)", timeComp, "O(N!)", "O(2^N)"],
-        correct: 1,
-        explanation: `The strict asymptotic worst/average bound for ${name} is ${timeComp}.`,
-        xp: 25
-      },
-      {
-        type: "CODE_TRACE",
-        question: `What is the result when executing this ${name} algorithmic snippet?`,
-        code: `int[] candies = {5, 15, 25};\nint sum = 0;\nfor (int c : candies) {\n    if (c > 10) sum += c;\n}\nSystem.out.print(sum);`,
-        options: ["40", "45", "25", "0"],
-        correct: 0,
-        explanation: "15 + 25 = 40 (5 is skipped since 5 is not greater than 10).",
-        xp: 30
-      }
-    ]
+    quiz: generateDiverseTopicQuiz(name, tag, timeComp, spaceComp, trackKey, realWorldUsage, index)
   };
 });
+
