@@ -366,6 +366,12 @@ function handleLoginSubmit(e) {
     }
     saveState();
 
+    // Reset any ongoing in-memory quiz states
+    currentQuizQ = 0;
+    quizScore = 0;
+    currentShuffledQuizOptions = [];
+    currentShuffledCorrectIdx = 0;
+
     // Trigger fresh burst foil opening for new user
     const packOverlay = document.getElementById("packOverlay");
     if (packOverlay) {
@@ -377,13 +383,15 @@ function handleLoginSubmit(e) {
     // Refresh all views to clean state for new user
     showView("homeView");
     renderHomeJars();
+    renderTrackMap();
+    renderDashboard();
     updateHeader();
     initSpinWheel();
     initPlayground();
 
     playFanfare();
     spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 60);
-    setMascot(`🎉 Welcome, ${enteredName}! A fresh Candy Quest journey has been prepared for you!`);
+    setMascot(`🎉 Welcome, ${enteredName}! All quiz questions and progress have been freshly initialized for you!`);
   }
 }
 
