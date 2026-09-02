@@ -421,45 +421,32 @@
 
     <!-- 7. Playground View -->
     <div id="playgroundView" class="view-panel" style="display: none;">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-        <h2 style="font-size: 22px; font-weight: 900; color: var(--candy-green);">💻 Java 21 DSA Code Playground</h2>
-        <button class="btn-candy" onclick="runPlaygroundCode()">
-          ▶ Run Code & Test Cases
-        </button>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <h2 style="font-size: 22px; font-weight: 900; color: var(--candy-green);">💻 Java 21 DSA Code Playground</h2>
+          <select id="playgroundPresetSelect" class="form-select" style="width: 240px; padding: 8px 14px; font-size: 13px;" onchange="loadPlaygroundPreset(this.value)">
+            <option value="twoSum">🍓 Two Sum (Hash Map $O(N)$)</option>
+            <option value="linkedList">🍊 Reverse Linked List ($O(N)$)</option>
+            <option value="treeBfs">🍇 Binary Tree BFS Level-Order</option>
+            <option value="climbStairs">🍉 Climbing Stairs (DP $O(N)$)</option>
+            <option value="bubbleSort">🍫 Bubble Sort ($O(N^2)$)</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="nav-btn" onclick="resetPlaygroundCode()">🔄 Reset Code</button>
+          <button class="btn-candy" onclick="runPlaygroundCode()">
+            ▶ Run Code & Test Cases
+          </button>
+        </div>
       </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div>
-          <textarea id="playgroundEditor" style="width: 100%; height: 360px; background: #090514; color: #7EE787; font-family: 'JetBrains Mono', monospace; padding: 16px; border-radius: 14px; border: 1.5px solid rgba(131,56,236,0.4); font-size: 13px;">
-import java.util.*;
-
-/**
- * Candy Quest Live Playground
- * Real-World Deployment: High-Frequency Stock Trading Pair Finder
- */
-public class TwoSumProduction {
-    public static int[] twoSum(int[] nums, int target) {
-        Map<Integer, Integer> map = new HashMap<>();
-        for (int i = 0; i < nums.length; i++) {
-            int complement = target - nums[i];
-            if (map.containsKey(complement)) {
-                return new int[]{map.get(complement), i};
-            }
-            map.put(nums[i], i);
-        }
-        return new int[]{};
-    }
-
-    public static void main(String[] args) {
-        int[] candies = {2, 7, 11, 15};
-        int target = 9;
-        System.out.println("Pair Indices: " + Arrays.toString(twoSum(candies, target)));
-    }
-}</textarea>
+          <textarea id="playgroundEditor" style="width: 100%; height: 400px; background: #090514; color: #7EE787; font-family: 'JetBrains Mono', monospace; padding: 16px; border-radius: 14px; border: 1.5px solid rgba(131,56,236,0.4); font-size: 13px; line-height: 1.5; resize: vertical;"></textarea>
         </div>
         <div>
-          <pre id="playgroundConsole" style="width: 100%; height: 360px; background: var(--bg-card); color: var(--text-pure); font-family: 'JetBrains Mono', monospace; padding: 16px; border-radius: 14px; border: 1.5px solid rgba(157,78,221,0.3); font-size: 12px; overflow-y: auto;">
+          <pre id="playgroundConsole" style="width: 100%; height: 400px; background: var(--bg-card); color: var(--text-pure); font-family: 'JetBrains Mono', monospace; padding: 16px; border-radius: 14px; border: 1.5px solid rgba(157,78,221,0.3); font-size: 12px; overflow-y: auto; line-height: 1.5;">
 [Java 21 Virtual Machine Sandbox Ready]
-Click 'Run Code & Test Cases' to compile and execute assertions...</pre>
+Click '▶ Run Code & Test Cases' to compile and execute assertions...</pre>
         </div>
       </div>
     </div>
