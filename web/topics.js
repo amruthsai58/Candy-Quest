@@ -229,25 +229,127 @@ function createShuffledQuestion(type, question, code, options, correctIdx, expla
   return q;
 }
 
+// Specific Handcrafted Technical Challenges for DSA Topics
+const SPECIFIC_CHALLENGES = {
+  "Big-O notation": {
+    q: "How many loop iterations execute in: for (int i = 1; i <= 64; i *= 2)?",
+    code: "int count = 0;\nfor (int i = 1; i <= 64; i *= 2) {\n    count++;\n}\nSystem.out.print(count);",
+    options: ["7", "6", "64", "32"],
+    correct: 0,
+    exp: "i takes values 1, 2, 4, 8, 16, 32, 64 (which is 7 iterations, O(log N))."
+  },
+  "Time vs space complexity": {
+    q: "What is the auxiliary space complexity of creating an auxiliary boolean array of size N?",
+    code: "boolean[] visited = new boolean[N];",
+    options: ["O(N)", "O(1)", "O(log N)", "O(N^2)"],
+    correct: 0,
+    exp: "Allocating an array of size N consumes linear O(N) extra heap memory."
+  },
+  "Arrays basics": {
+    q: "What element is accessed by candies[candies.length - 2]?",
+    code: "int[] candies = {10, 20, 30, 40, 50};\nSystem.out.print(candies[candies.length - 2]);",
+    options: ["40", "50", "30", "20"],
+    correct: 0,
+    exp: "Length is 5, so index 5 - 2 = 3. candies[3] = 40."
+  },
+  "Multi-dimensional arrays": {
+    q: "What value is printed by matrix[1][2]?",
+    code: "int[][] matrix = {\n    {1, 2, 3},\n    {4, 5, 6},\n    {7, 8, 9}\n};\nSystem.out.print(matrix[1][2]);",
+    options: ["6", "5", "8", "2"],
+    correct: 0,
+    exp: "Row index 1 is {4, 5, 6}, and column index 2 is 6."
+  },
+  "String basics": {
+    q: "What is the output of 'chew'.substring(1, 3)?",
+    code: "String s = \"chew\";\nSystem.out.print(s.substring(1, 3));",
+    options: ["\"he\"", "\"hew\"", "\"ch\"", "\"h\""],
+    correct: 0,
+    exp: "substring(1, 3) takes characters at index 1 ('h') and index 2 ('e') up to (exclusive) index 3."
+  },
+  "String immutability in Java": {
+    q: "What string is printed after this concat call?",
+    code: "String s = \"Candy\";\ns.concat(\"Quest\");\nSystem.out.print(s);",
+    options: ["\"Candy\"", "\"CandyQuest\"", "\"Quest\"", "Compilation Error"],
+    correct: 0,
+    exp: "Strings in Java are immutable! s.concat() returns a new string, leaving original 's' unchanged as \"Candy\"."
+  },
+  "StringBuilder": {
+    q: "What is the output of this StringBuilder manipulation?",
+    code: "StringBuilder sb = new StringBuilder(\"AB\");\nsb.append(\"C\").reverse();\nSystem.out.print(sb.toString());",
+    options: ["\"CBA\"", "\"ABC\"", "\"BAC\"", "\"AB\""],
+    correct: 0,
+    exp: "\"AB\" + \"C\" = \"ABC\", and reversing yields \"CBA\"."
+  },
+  "Two-pointer technique": {
+    q: "In 2-pointer convergence on sorted array, if arr[L] + arr[R] > target, which pointer moves?",
+    code: "int[] arr = {1, 3, 5, 8, 11};\n// target = 9\n// arr[0] + arr[4] = 1 + 11 = 12 > 9",
+    options: ["Decrement R (R--)", "Increment L (L++)", "Reset both to 0", "Break loop"],
+    correct: 0,
+    exp: "To decrease the current sum in a sorted array, the right pointer R must decrement."
+  },
+  "Sliding window": {
+    q: "When sliding a window of size K=3 across [2, 1, 5, 1, 3], what is the maximum sum?",
+    code: "int[] arr = {2, 1, 5, 1, 3};\n// windows: [2,1,5]=8, [1,5,1]=7, [5,1,3]=9",
+    options: ["9", "8", "7", "12"],
+    correct: 0,
+    exp: "Window [5, 1, 3] yields the maximum sum of 9."
+  },
+  "Prefix sums": {
+    q: "Given prefix sum array P=[0, 3, 7, 12, 20], what is the range sum of arr[1..3]?",
+    code: "// Sum(L..R) = P[R+1] - P[L]\n// Sum(1..3) = P[4] - P[1]",
+    options: ["17", "20", "12", "7"],
+    correct: 0,
+    exp: "P[4] - P[1] = 20 - 3 = 17."
+  },
+  "Recursion basics": {
+    q: "What is the return value of factorial(4)?",
+    code: "int fact(int n) {\n    if (n <= 1) return 1;\n    return n * fact(n - 1);\n}\nfact(4);",
+    options: ["24", "12", "16", "4"],
+    correct: 0,
+    exp: "4 * 3 * 2 * 1 = 24."
+  },
+  "Bit manipulation basics": {
+    q: "What is the value of (5 ^ 5) in Java?",
+    code: "int x = 5 ^ 5;\nSystem.out.print(x);",
+    options: ["0", "5", "10", "1"],
+    correct: 0,
+    exp: "XORing any number with itself results in 0 (x ^ x = 0)."
+  },
+  "Bubble sort": {
+    q: "After 1 pass of Bubble Sort on [5, 1, 4, 2, 8], which element is guaranteed to be in its final position?",
+    code: "int[] arr = {5, 1, 4, 2, 8};",
+    options: ["8 (at the end)", "1 (at the start)", "5 (in the middle)", "None"],
+    correct: 0,
+    exp: "Each pass of Bubble Sort bubbles the largest unsorted element to the end."
+  },
+  "Binary search basics": {
+    q: "In binary search over a sorted array of 128 elements, what is the max comparisons needed?",
+    code: "// log2(128) = 7",
+    options: ["7", "128", "64", "14"],
+    correct: 0,
+    exp: "log2(128) = 7 comparisons maximum."
+  }
+};
+
 function generateDiverseTopicQuiz(name, tag, timeComp, spaceComp, trackKey, realWorldUsage, index) {
-  // 1. Concept & Real-World MCQ
+  // 1. Concept & Real-World MCQ (Question 1)
   const q1 = createShuffledQuestion(
     "MCQ",
-    `How does ${name} deliver critical architectural value in ${realWorldUsage}?`,
+    `Why is ${name} chosen for real-world architectures in ${realWorldUsage}?`,
     null,
     [
-      `Provides optimized ${timeComp} execution to scale ${realWorldUsage}`,
-      `Guarantees worst-case O(N!) factorial CPU consumption`,
-      `Acts as an unindexed memory leak that stalls event loops`,
-      `Restricts operations exclusively to single-byte primitive characters`
+      `Provides guaranteed ${timeComp} execution scaling for ${realWorldUsage}`,
+      `Guarantees exponential factorial CPU consumption`,
+      `Acts as an unindexed memory leak that stalls threads`,
+      `Restricts operations exclusively to single-character strings`
     ],
     0,
     `${name} is engineered to provide ${timeComp} efficiency in ${realWorldUsage}.`,
     25
   );
 
-  // 2. Asymptotic Complexity Question with diverse distractors
-  const distractors = [
+  // 2. Asymptotic Complexity Question (Question 2)
+  const complexityDistractors = [
     `Time: ${timeComp}, Space: ${spaceComp}`,
     `Time: O(N^2), Space: O(N)`,
     `Time: O(N log N), Space: O(1)`,
@@ -257,118 +359,81 @@ function generateDiverseTopicQuiz(name, tag, timeComp, spaceComp, trackKey, real
     "COMPLEXITY",
     `What are the asymptotic Time & Auxiliary Space bounds for ${name}?`,
     null,
-    distractors,
+    complexityDistractors,
     0,
-    `The standard theoretical bounds for ${name} are ${timeComp} time and ${spaceComp} space.`,
+    `The standard bounds for ${name} are ${timeComp} time and ${spaceComp} space.`,
     25
   );
 
-  // 3. Domain-Specific Code Trace / Algorithmic Question
+  // 3. Unique Domain-Specific Code Trace / Algorithmic Question (Question 3)
   let q3;
-  const tagLower = (tag || "").toLowerCase();
-  const trackLower = (trackKey || "").toLowerCase();
+  const custom = SPECIFIC_CHALLENGES[name];
 
-  if (tagLower.includes("array") || tagLower.includes("two pointer") || tagLower.includes("sliding window") || tagLower.includes("prefix")) {
-    const valA = (index % 5) + 2;
-    const valB = valA * 3;
-    const target = valA + valB;
+  if (custom) {
     q3 = createShuffledQuestion(
       "CODE_TRACE",
-      `Trace this array pointer snippet for ${name}. What is the output?`,
-      `int[] arr = {${valA}, 7, ${valB}, 15};\nint target = ${target};\nint matchSum = 0;\nif (arr[0] + arr[2] == target) {\n    matchSum = arr[0] * arr[2];\n}\nSystem.out.print(matchSum);`,
-      [`${valA * valB}`, `${target}`, `${valA + valB + 7}`, "0"],
-      0,
-      `arr[0] (${valA}) + arr[2] (${valB}) == ${target} is TRUE, so output is ${valA} * ${valB} = ${valA * valB}.`,
-      30
-    );
-  } else if (tagLower.includes("string")) {
-    const shift = (index % 3) + 1;
-    const baseChar = "c";
-    const shiftedChar = String.fromCharCode(baseChar.charCodeAt(0) + shift);
-    q3 = createShuffledQuestion(
-      "CODE_TRACE",
-      `What character value is printed by this string buffer evaluation in ${name}?`,
-      `String candy = "${baseChar}andy";\nchar result = (char)(candy.charAt(0) + ${shift});\nSystem.out.print(result);`,
-      [`'${shiftedChar}'`, `'${baseChar}'`, `'z'`, `${shift}`],
-      0,
-      `ASCII for '${baseChar}' (${baseChar.charCodeAt(0)}) + ${shift} = ${baseChar.charCodeAt(0) + shift}, which maps to character '${shiftedChar}'.`,
-      30
-    );
-  } else if (tagLower.includes("linked list")) {
-    const val1 = 10 * ((index % 4) + 1);
-    const val2 = val1 + 10;
-    const val3 = val2 + 10;
-    q3 = createShuffledQuestion(
-      "CODE_TRACE",
-      `What is the value of 'curr.val' after these pointer assignments in ${name}?`,
-      `class Node { int val; Node next; Node(int v){ val = v; } }\nNode a = new Node(${val1});\na.next = new Node(${val2});\na.next.next = new Node(${val3});\nNode curr = a.next.next;\nSystem.out.print(curr.val);`,
-      [`${val3}`, `${val1}`, `${val2}`, "null"],
-      0,
-      `a.next points to ${val2}, and a.next.next points to ${val3}. Therefore curr.val is ${val3}.`,
-      30
-    );
-  } else if (tagLower.includes("stack") || tagLower.includes("queue") || tagLower.includes("deque")) {
-    const pushA = (index % 10) + 5;
-    const pushB = pushA + 10;
-    const pushC = pushB + 10;
-    q3 = createShuffledQuestion(
-      "CODE_TRACE",
-      `What value does 'stack.peek()' return after this sequence in ${name}?`,
-      `Deque<Integer> stack = new ArrayDeque<>();\nstack.push(${pushA});\nstack.push(${pushB});\nstack.pop();\nstack.push(${pushC});\nSystem.out.print(stack.peek());`,
-      [`${pushC}`, `${pushB}`, `${pushA}`, "0"],
-      0,
-      `Pushed ${pushA}, pushed ${pushB}, popped ${pushB} (LIFO), then pushed ${pushC}. Top of stack is ${pushC}.`,
-      30
-    );
-  } else if (tagLower.includes("tree") || tagLower.includes("graph") || tagLower.includes("trie") || tagLower.includes("heap")) {
-    const p1 = 40, p2 = 10, p3 = 30;
-    q3 = createShuffledQuestion(
-      "CODE_TRACE",
-      `What value is printed after operating on this PriorityQueue/Min-Heap in ${name}?`,
-      `PriorityQueue<Integer> heap = new PriorityQueue<>();\nheap.add(${p1});\nheap.add(${p2});\nheap.add(${p3});\nheap.poll(); // removes smallest\nSystem.out.print(heap.peek());`,
-      [`${p3}`, `${p2}`, `${p1}`, "null"],
-      0,
-      `Smallest value ${p2} is removed by poll(). The new minimum element at the top of the min-heap is ${p3}.`,
-      30
-    );
-  } else if (tagLower.includes("dynamic") || tagLower.includes("dp") || tagLower.includes("recursion")) {
-    const steps = (index % 3) + 3; // 3, 4, 5
-    // Fibonacci: 1, 2, 3, 5, 8
-    const fibMap = { 3: 3, 4: 5, 5: 8 };
-    const ans = fibMap[steps] || 3;
-    q3 = createShuffledQuestion(
-      "CODE_TRACE",
-      `What is the memoized value in dp[${steps - 1}] for this subproblem transition in ${name}?`,
-      `int[] dp = new int[${steps}];\ndp[0] = 1; dp[1] = 2;\nfor(int i = 2; i < ${steps}; i++) {\n    dp[i] = dp[i-1] + dp[i-2];\n}\nSystem.out.print(dp[${steps - 1}]);`,
-      [`${ans}`, `${ans - 1}`, `${ans + 2}`, "1"],
-      0,
-      `State transition dp[i] = dp[i-1] + dp[i-2] yields value ${ans} at index ${steps - 1}.`,
-      30
-    );
-  } else if (tagLower.includes("bit")) {
-    const num = 12; // 1100
-    const bitResult = num & (num - 1); // 1100 & 1011 = 1000 = 8
-    q3 = createShuffledQuestion(
-      "CODE_TRACE",
-      `What is the result of executing this bitwise operation in ${name}?`,
-      `int x = ${num}; // binary 1100\nint result = x & (x - 1);\nSystem.out.print(result);`,
-      [`${bitResult}`, `${num}`, `${num - 1}`, "0"],
-      0,
-      `The expression x & (x - 1) clears the lowest set bit: 1100 & 1011 = 1000 in binary (${bitResult} in decimal).`,
+      custom.q,
+      custom.code,
+      custom.options,
+      custom.correct,
+      custom.exp,
       30
     );
   } else {
-    // General Algorithm / Sorting / Search / Math
-    const a = 36, b = 24;
-    q3 = createShuffledQuestion(
-      "CODE_TRACE",
-      `What is the computed Euclidean GCD result for inputs a=${a}, b=${b} in ${name}?`,
-      `int a = ${a}, b = ${b};\nwhile (b != 0) {\n    int t = b;\n    b = a % b;\n    a = t;\n}\nSystem.out.print(a);`,
-      ["12", "6", "24", "1"],
-      0,
-      `GCD(36, 24) = 12 (36 % 24 = 12; 24 % 12 = 0; loop terminates with a = 12).`,
-      30
-    );
+    // Dynamic generation with unique parameters based on topic index
+    const seed = (index * 7 + 13) % 97;
+    const a = (seed % 9) + 2;
+    const b = a * 2 + 1;
+    const c = a + b;
+    
+    if (tag.toLowerCase().includes("tree") || tag.toLowerCase().includes("graph")) {
+      const parent = (index % 10) + 1;
+      const leftChild = 2 * parent;
+      const rightChild = 2 * parent + 1;
+      q3 = createShuffledQuestion(
+        "CODE_TRACE",
+        `In a 1-indexed binary heap array for ${name}, what is the left child index of node #${parent}?`,
+        `// Node index = ${parent}\nint leftChildIndex = 2 * ${parent};\nSystem.out.print(leftChildIndex);`,
+        [`${leftChild}`, `${rightChild}`, `${parent + 1}`, `${parent * 4}`],
+        0,
+        `In a binary heap, the left child of node k is at index 2*k (${leftChild}).`,
+        30
+      );
+    } else if (tag.toLowerCase().includes("dynamic") || tag.toLowerCase().includes("dp")) {
+      const fibIdx = (index % 4) + 2;
+      const fibVal = [1, 2, 3, 5, 8, 13][fibIdx] || 5;
+      q3 = createShuffledQuestion(
+        "CODE_TRACE",
+        `What is the state value stored in dp[${fibIdx}] for ${name}?`,
+        `int[] dp = new int[${fibIdx + 1}];\ndp[0] = 1; dp[1] = 2;\nfor(int i = 2; i <= ${fibIdx}; i++) dp[i] = dp[i-1] + dp[i-2];\nSystem.out.print(dp[${fibIdx}]);`,
+        [`${fibVal}`, `${fibVal - 1}`, `${fibVal + 2}`, "1"],
+        0,
+        `DP transition dp[${fibIdx}] evaluates to ${fibVal}.`,
+        30
+      );
+    } else if (tag.toLowerCase().includes("stack") || tag.toLowerCase().includes("queue")) {
+      const valX = (index % 12) + 3;
+      const valY = valX + 7;
+      q3 = createShuffledQuestion(
+        "CODE_TRACE",
+        `What value is returned by stack.pop() after these push/pop calls in ${name}?`,
+        `Deque<Integer> stack = new ArrayDeque<>();\nstack.push(${valX});\nstack.push(${valY});\nSystem.out.print(stack.pop());`,
+        [`${valY}`, `${valX}`, "0", "null"],
+        0,
+        `LIFO order pops the last pushed element (${valY}).`,
+        30
+      );
+    } else {
+      q3 = createShuffledQuestion(
+        "CODE_TRACE",
+        `What is the evaluated output of this core algorithm expression for ${name}?`,
+        `int a = ${a}, b = ${b};\nint result = (a * 2) + (b - ${a});\nSystem.out.print(result);`,
+        [`${(a * 2) + (b - a)}`, `${a * b}`, `${c}`, "0"],
+        0,
+        `(${a} * 2) + (${b} - ${a}) = ${a * 2} + ${b - a} = ${(a * 2) + (b - a)}.`,
+        30
+      );
+    }
   }
 
   return [q1, q2, q3];
